@@ -1,0 +1,95 @@
+// Daily recap. For high-volume low-value sellers this is the only screen
+// they open besides Kasir, so it has to be right and it has to be cheap.
+
+import { grossProfit, lineSubtotal } from './sale.js';
+
+/**
+ * Day boundaries in the device timezone, typically Asia/Jakarta. A UTC
+ * boundary puts an 8pm sale on the wrong day.
+ */
+export function dayBounds(date = new Date()) {
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+  return { start: start.getTime(), end: end.getTime() };
+}
+
+export const isSameDay = (timestamp, date = new Date()) => {
+  const { start, end } = dayBounds(date);
+  return timestamp >= start && timestamp < end;
+};
+
+/**
+ * The recap an owner actually wants. `sales` are the completed and voided
+ * sales of the day; `linesBySale` maps a sale id to its lines.
+ */
+export function dailyRecap({ sales = [], linesBySale = new Map(), ledger = [] } = {}) {
+  const done = sales.filter((s) => s.status === 'selesai');
+
+  let penjualan = 0;
+  let tunai = 0;
+  let nonTunai = 0;
+  let utangBaru = 0;
+  let laba = 0;
+  let labaKnown = true;
+
+  for (const sale of done) {
+    penjualan += sale.total;
+
+    const paid = Math.min(sale.payment?.paid ?? 0, sale.total);
+    if (sale.payment?.method === 'tunai') tunai += paid;
+    else if (sale.payment?.method === 'utang') tunai += paid;
+    else nonTunai += paid;
+
+    if (sale.payment?.method === 'utang') utangBaru += sale.total - paid;
+
+    const profit = grossProfit(linesBySale.get(sale.id) ?? []);
+    if (profit == null) labaKnown = false;
+    else laba += profit;
+  }
+
+  const pembayaranUtang = ledger
+    .filter((e) => e.type === 'bayar')
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  return {
+    transaksi: done.length,
+    batal: sales.length - done.length,
+    penjualan,
+    tunai,
+    nonTunai,
+    utangBaru,
+    pembayaranUtang,
+    laba: labaKnown ? laba : null,
+  };
+}
+
+/** Best sellers, by quantity sold, already sorted. */
+export function bestSellers(lines = [], limit = 5) {
+  const map = new Map();
+  for (const line of lines) {
+    const entry = map.get(line.itemId) ?? {
+      itemId: line.itemId,
+      name: line.name,
+      qty: 0,
+      total: 0,
+    };
+    entry.qty += line.qty || 0;
+    entry.total += lineSubtotal(line);
+    map.set(line.itemId, entry);
+  }
+  return [...map.values()].sort((a, b) => b.qty - a.qty).slice(0, limit);
+}
+
+/** Expected cash in the drawer at close, and the selisih once counted. */
+export function shiftSummary({ kasAwal = 0, tunai = 0, kasAkhir = null } = {}) {
+  const seharusnya = kasAwal + tunai;
+  return {
+    kasAwal,
+    tunai,
+    seharusnya,
+    kasAkhir,
+    selisih: kasAkhir == null ? null : kasAkhir - seharusnya,
+  };
+}

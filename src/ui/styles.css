@@ -1,0 +1,875 @@
+/* Kasir UMKM — visual system
+   ---------------------------------------------------------------------------
+   Direction: fresh, in the register Indonesian shoppers already know from the
+   big marketplace apps. Bright leaf green on white, rounded corners, soft
+   elevation instead of hard rules, and a lot of air. Friendly rather than
+   clerical: this should feel like an app the owner chose, not a form they were
+   handed.
+
+   Two things from ui-kasir still outrank the aesthetic, and both bent the
+   palette:
+   - Daylight contrast. The bright marketplace green fails AA behind white
+     text (about 3.1:1), so solid buttons use a deeper green that passes, and
+     the bright one is kept for fills and tints that carry no text.
+   - Cheap-Android performance. Shadows are one cheap layer, never stacked,
+     and motion stays short and few. */
+
+@font-face {
+  font-family: 'Nunito Sans';
+  src: url('./fonts/nunito-sans-latin.woff2') format('woff2');
+  /* One variable file covers the whole range, so weight costs no extra bytes. */
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Green carries the brand and every primary action, nothing else. */
+  --hijau: #05833d; /* on solid buttons: 4.9:1 behind white text */
+  --hijau-tekan: #046a31;
+  --hijau-cerah: #06a94d; /* the fresh one, for fills and marks, never text */
+  --hijau-muda: #e7f7ed;
+
+  --teks: #202b25;
+  --teks-2: #5a6670;
+  --garis: #e6e9ea;
+  --latar: #f4f5f6;
+  --kertas: #ffffff;
+
+  /* Debt and destructive. */
+  --merah: #c92a20;
+  --merah-muda: #fdeeed;
+
+  /* Stock running low. */
+  --oranye: #8a5300;
+  --oranye-muda: #fff4e0;
+
+  --tap: 48px;
+  --gap: 12px;
+  --sudut: 8px;
+  --sudut-besar: 14px;
+  --bar: 66px;
+
+  /* One cheap layer. Stacking shadows is what makes a list scroll badly on a
+     three-year-old Android. */
+  --naik: 0 1px 2px rgba(32, 43, 37, 0.06), 0 2px 6px rgba(32, 43, 37, 0.05);
+  --naik-tinggi: 0 -2px 12px rgba(32, 43, 37, 0.08);
+
+  --font: 'Nunito Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--latar);
+  color: var(--teks);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.45;
+  /* Every figure here is money or a count, and both want to line up in a
+     column when stacked. */
+  font-variant-numeric: tabular-nums;
+  overscroll-behavior-y: none;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input,
+select {
+  font: inherit;
+  /* Never below 16px: iOS zooms the viewport on focus, and the zoom is
+     disorienting in the middle of a sale. */
+  font-size: max(1rem, 16px);
+}
+
+:focus-visible {
+  outline: 3px solid var(--hijau);
+  outline-offset: 2px;
+}
+
+/* ---------- layout ---------- */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding-bottom: calc(var(--bar) + env(safe-area-inset-bottom));
+}
+
+.screen--flush {
+  padding-bottom: 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  min-height: 60px;
+  padding: 12px 16px;
+  background: var(--kertas);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  box-shadow: var(--naik);
+}
+
+.topbar__sub {
+  font-size: 0.84rem;
+  color: var(--teks-2);
+  font-weight: 600;
+}
+
+.body {
+  flex: 1;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+}
+
+.row--between {
+  justify-content: space-between;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.card {
+  background: var(--kertas);
+  border-radius: var(--sudut-besar);
+  padding: 16px;
+  box-shadow: var(--naik);
+}
+
+.muted {
+  color: var(--teks-2);
+  font-size: 0.92rem;
+}
+
+.strong {
+  font-weight: 700;
+}
+
+.big {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 12px 18px;
+  border-radius: var(--sudut);
+  background: var(--kertas);
+  border: 1.5px solid var(--garis);
+  color: var(--teks);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 110ms ease;
+}
+
+.btn:active {
+  background: var(--latar);
+}
+
+.btn--primary {
+  background: var(--hijau);
+  border-color: var(--hijau);
+  color: var(--kertas);
+}
+
+.btn--primary:active {
+  background: var(--hijau-tekan);
+}
+
+.btn--danger {
+  color: var(--merah);
+  border-color: var(--merah-muda);
+  background: var(--merah-muda);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--lg {
+  min-height: 56px;
+  font-size: 1.05rem;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+}
+
+/* The number the shopkeeper reads out loud to the customer, so it is the
+   largest thing on the screen. */
+.btn--pay {
+  min-height: 62px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  border-radius: var(--sudut);
+}
+
+/* ---------- forms ---------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field__label {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.field__hint {
+  font-size: 0.84rem;
+  color: var(--teks-2);
+}
+
+.input {
+  min-height: var(--tap);
+  padding: 10px 14px;
+  border: 1.5px solid var(--garis);
+  border-radius: var(--sudut);
+  background: var(--kertas);
+  color: var(--teks);
+  width: 100%;
+}
+
+.input::placeholder {
+  color: var(--teks-2);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--hijau);
+}
+
+.input--money {
+  text-align: right;
+  font-weight: 800;
+  font-size: 1.25rem;
+}
+
+.error {
+  color: var(--merah);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  min-height: var(--tap);
+  padding: 6px 0;
+}
+
+.switch input {
+  width: 26px;
+  height: 26px;
+  accent-color: var(--hijau);
+  flex: none;
+}
+
+/* ---------- tabs ---------- */
+
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: var(--kertas);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 10;
+  box-shadow: var(--naik-tinggi);
+}
+
+.tabbar__item {
+  flex: 1;
+  min-height: var(--bar);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--teks-2);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.tabbar__item[aria-current='page'] {
+  color: var(--hijau);
+}
+
+.tabbar__icon {
+  display: block;
+  width: 23px;
+  height: 23px;
+}
+
+/* ---------- item grid (mode: grid) ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.tile {
+  position: relative;
+  min-height: 94px;
+  border-radius: var(--sudut-besar);
+  border: none;
+  background: var(--kertas);
+  box-shadow: var(--naik);
+  padding: 13px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  text-align: left;
+  gap: 6px;
+  transition: transform 110ms ease;
+}
+
+.tile:active {
+  transform: scale(0.97);
+}
+
+.tile__name {
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.tile__price {
+  font-size: 0.98rem;
+  color: var(--hijau);
+  font-weight: 800;
+}
+
+.tile__badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--hijau-cerah);
+  color: var(--kertas);
+  border: 2px solid var(--kertas);
+  border-radius: 999px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 16px 0;
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  min-height: 40px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--garis);
+  background: var(--kertas);
+  white-space: nowrap;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--teks-2);
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--hijau-muda);
+  border-color: var(--hijau);
+  color: var(--hijau);
+}
+
+/* ---------- running lines ---------- */
+
+.lines {
+  background: var(--kertas);
+  border-radius: var(--sudut-besar) var(--sudut-besar) 0 0;
+  max-height: 40dvh;
+  overflow-y: auto;
+  box-shadow: var(--naik-tinggi);
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--garis);
+}
+
+.line:last-child {
+  border-bottom: none;
+}
+
+.line__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.line__name {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.line__sub {
+  font-size: 0.9rem;
+  color: var(--hijau);
+  font-weight: 800;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.stepper__btn {
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 999px;
+  border: 1.5px solid var(--garis);
+  background: var(--kertas);
+  color: var(--hijau);
+  font-size: 1.3rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepper__btn:active {
+  background: var(--hijau-muda);
+}
+
+.stepper__qty {
+  min-width: 32px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+/* The pay area sits in the bottom third, inside the thumb arc. */
+.paybar {
+  position: sticky;
+  bottom: 0;
+  background: var(--kertas);
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--naik-tinggi);
+}
+
+/* ---------- sheet ---------- */
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  background: rgba(32, 43, 37, 0.45);
+  display: flex;
+  align-items: flex-end;
+  z-index: 20;
+}
+
+.sheet__panel {
+  background: var(--kertas);
+  width: 100%;
+  max-height: 94dvh;
+  overflow-y: auto;
+  border-radius: 20px 20px 0 0;
+  padding: 18px 16px calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+/* ---------- barcode scanner ---------- */
+
+.pindai {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.pindai__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Fill the frame: letterboxing wastes the area the cashier is aiming with. */
+  object-fit: cover;
+}
+
+/* The aiming window. Corner brackets only, so the barcode itself stays
+   unobstructed while the frame still says where to point. */
+.pindai__bingkai {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(74vw, 300px);
+  height: 168px;
+  border-radius: var(--sudut);
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.45);
+}
+
+.pindai__bingkai::before,
+.pindai__bingkai::after {
+  content: '';
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border: 4px solid var(--hijau-cerah);
+}
+
+.pindai__bingkai::before {
+  top: -2px;
+  left: -2px;
+  border-right: none;
+  border-bottom: none;
+  border-radius: var(--sudut) 0 0 0;
+}
+
+.pindai__bingkai::after {
+  bottom: -2px;
+  right: -2px;
+  border-left: none;
+  border-top: none;
+  border-radius: 0 0 var(--sudut) 0;
+}
+
+.pindai__petunjuk,
+.pindai__pesan {
+  position: relative;
+  margin: 0 0 12px;
+  padding: 0 20px;
+  text-align: center;
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.pindai__pesan {
+  /* Failures need to be readable against whatever the camera happens to see. */
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: var(--sudut);
+  margin: 0 16px 12px;
+  padding: 12px 14px;
+  font-weight: 600;
+}
+
+.pindai__pesan--gagal {
+  background: var(--merah);
+}
+
+.pindai__aksi {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px calc(16px + env(safe-area-inset-bottom));
+}
+
+/* ---------- keypad ---------- */
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.keypad__key {
+  min-height: 54px;
+  border-radius: var(--sudut);
+  border: none;
+  background: var(--latar);
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.keypad__key:active {
+  background: var(--hijau-muda);
+  color: var(--hijau);
+}
+
+.quick {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+/* ---------- sale complete ----------
+   The one orchestrated moment. A shop still says "lunas" when a bill is
+   settled, so the word stays; the treatment is a friendly confirmation rather
+   than a rubber stamp. The change owed sits underneath, because that is the
+   number the cashier is about to count out of the drawer. */
+
+.stamp-layer {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.94);
+  z-index: 40;
+}
+
+.stamp {
+  width: 118px;
+  height: 118px;
+  border-radius: 999px;
+  background: var(--hijau-cerah);
+  color: var(--kertas);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  animation: muncul 200ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.stamp svg {
+  width: 40px;
+  height: 40px;
+}
+
+.stamp--utang {
+  background: var(--merah);
+}
+
+.stamp__note {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--teks);
+}
+
+@keyframes muncul {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Animation on a cheap Android reads as lag, so anyone who has asked for less
+   motion gets no movement at all. */
+@media (prefers-reduced-motion: reduce) {
+  .stamp {
+    animation: none;
+  }
+
+  .tile:active {
+    transform: none;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- misc ---------- */
+
+.empty {
+  text-align: center;
+  padding: 48px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  align-items: center;
+  color: var(--teks-2);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* Colour is never the only signal, so each of these always carries its word. */
+.badge--warn {
+  background: var(--oranye-muda);
+  color: var(--oranye);
+}
+
+.badge--danger {
+  background: var(--merah-muda);
+  color: var(--merah);
+}
+
+.badge--ok {
+  background: var(--hijau-muda);
+  color: var(--hijau);
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  padding: 12px 16px;
+  background: var(--oranye-muda);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  background: var(--kertas);
+  border-radius: var(--sudut-besar);
+  overflow: hidden;
+  box-shadow: var(--naik);
+}
+
+.list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  min-height: 60px;
+  padding: 12px 16px;
+  text-align: left;
+  width: 100%;
+  border-bottom: 1px solid var(--garis);
+}
+
+.list__item:last-child {
+  border-bottom: none;
+}
+
+.list__item:active {
+  background: var(--latar);
+}
+
+.stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--garis);
+}
+
+.stat:last-child {
+  border-bottom: none;
+}
+
+.stat__value {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+/* The closing total, set apart on its own tinted row. */
+.stat--total {
+  border-bottom: none;
+  background: var(--hijau-muda);
+  border-radius: var(--sudut);
+  padding: 12px 14px;
+  margin: 2px 0 4px;
+}
+
+.stat--total .big {
+  color: var(--hijau);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,0 +1,102 @@
+import { describe, expect, it } from 'vitest';
+import { bestSellers, dailyRecap, dayBounds, isSameDay, shiftSummary } from './report.js';
+
+const sale = (over = {}) => ({
+  id: 's1',
+  total: 26000,
+  status: 'selesai',
+  payment: { method: 'tunai', paid: 26000 },
+  ...over,
+});
+
+const line = (over = {}) => ({
+  itemId: 'itm1',
+  name: 'Nasi goreng',
+  price: 12000,
+  qty: 1,
+  factor: 1,
+  cost: null,
+  modifiers: [],
+  ...over,
+});
+
+describe('dayBounds', () => {
+  it('spans local midnight to local midnight', () => {
+    const { start, end } = dayBounds(new Date(2026, 7, 3, 20, 30));
+    expect(new Date(start).getHours()).toBe(0);
+    expect(end - start).toBe(86_400_000);
+  });
+
+  it('keeps a late evening sale on the same local day', () => {
+    const evening = new Date(2026, 7, 3, 22, 0).getTime();
+    expect(isSameDay(evening, new Date(2026, 7, 3, 8, 0))).toBe(true);
+  });
+});
+
+describe('dailyRecap', () => {
+  it('counts only completed sales in the takings', () => {
+    const r = dailyRecap({
+      sales: [sale(), sale({ id: 's2', status: 'batal' })],
+    });
+    expect(r.transaksi).toBe(1);
+    expect(r.batal).toBe(1);
+    expect(r.penjualan).toBe(26000);
+  });
+
+  it('splits new debt from cash actually received', () => {
+    const r = dailyRecap({
+      sales: [sale({ payment: { method: 'utang', paid: 6000 } })],
+    });
+    expect(r.tunai).toBe(6000);
+    expect(r.utangBaru).toBe(20000);
+  });
+
+  it('reports profit as null when any item has no cost, rather than a wrong number', () => {
+    const linesBySale = new Map([['s1', [line({ cost: null })]]]);
+    expect(dailyRecap({ sales: [sale()], linesBySale }).laba).toBeNull();
+  });
+
+  it('sums profit when every line carries a cost', () => {
+    const linesBySale = new Map([['s1', [line({ price: 12000, cost: 8000, qty: 2 })]]]);
+    expect(dailyRecap({ sales: [sale()], linesBySale }).laba).toBe(8000);
+  });
+
+  it('counts utang repayments separately from sales', () => {
+    const r = dailyRecap({
+      sales: [],
+      ledger: [{ type: 'bayar', amount: 15000 }, { type: 'utang', amount: 5000 }],
+    });
+    expect(r.pembayaranUtang).toBe(15000);
+    expect(r.penjualan).toBe(0);
+  });
+
+  it('handles a day with no sales at all', () => {
+    const r = dailyRecap({});
+    expect(r).toMatchObject({ transaksi: 0, penjualan: 0, utangBaru: 0 });
+  });
+});
+
+describe('bestSellers', () => {
+  it('ranks by quantity across sales', () => {
+    const lines = [
+      line({ itemId: 'a', name: 'Teh', qty: 5, price: 3000 }),
+      line({ itemId: 'b', name: 'Gorengan', qty: 12, price: 1000 }),
+      line({ itemId: 'a', name: 'Teh', qty: 2, price: 3000 }),
+    ];
+    const top = bestSellers(lines);
+    expect(top[0]).toMatchObject({ itemId: 'b', qty: 12 });
+    expect(top[1]).toMatchObject({ itemId: 'a', qty: 7, total: 21000 });
+  });
+});
+
+describe('shiftSummary', () => {
+  it('computes the expected drawer and the difference once counted', () => {
+    const s = shiftSummary({ kasAwal: 100000, tunai: 450000, kasAkhir: 545000 });
+    expect(s.seharusnya).toBe(550000);
+    expect(s.selisih).toBe(-5000);
+  });
+
+  it('leaves the difference unknown until the drawer is counted', () => {
+    expect(shiftSummary({ kasAwal: 100000, tunai: 450000 }).selisih).toBeNull();
+  });
+});
