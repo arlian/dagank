@@ -39,7 +39,19 @@ export function alasanScan() {
   return 'perluUnduh';
 }
 
-export default function ScanBarcode({ onDetect, onClose }) {
+/**
+ * `onDetect(code)` decides what a scanned code means, and owns its own wording:
+ *   { ok: true,  nama?, harga?, qty? }  accepted
+ *   { ok: false, pesan }                rejected, with the reason to show
+ *
+ * Two callers need different things from the same camera. The till looks the
+ * code up and adds an item; the item form just captures the digits and has to
+ * refuse a code another item already uses.
+ *
+ * `sekali` closes after the first accepted code, for callers that want one
+ * code rather than a stream of them.
+ */
+export default function ScanBarcode({ onDetect, onClose, sekali = false }) {
   const [reason] = useState(alasanScan);
   const [manual, setManual] = useState(false);
 
@@ -53,12 +65,13 @@ export default function ScanBarcode({ onDetect, onClose }) {
       mode={reason === 'ok' ? 'native' : 'zxing'}
       onDetect={onDetect}
       onClose={onClose}
+      sekali={sekali}
       onManual={() => setManual(true)}
     />
   );
 }
 
-function Kamera({ mode, onDetect, onClose, onManual }) {
+function Kamera({ mode, onDetect, onClose, sekali, onManual }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const lastRef = useRef({ code: null, at: 0 });
@@ -69,10 +82,12 @@ function Kamera({ mode, onDetect, onClose, onManual }) {
   // which never left it running long enough to decode anything.
   const detectRef = useRef(onDetect);
   detectRef.current = onDetect;
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
 
   const [status, setStatus] = useState('minta');
   const [added, setAdded] = useState(null);
-  const [notFound, setNotFound] = useState(null);
+  const [rejected, setRejected] = useState(null);
   const [torch, setTorch] = useState(null);
 
   useEffect(() => {
@@ -140,13 +155,21 @@ function Kamera({ mode, onDetect, onClose, onManual }) {
 
         navigator.vibrate?.(40);
         const hasil = await detectRef.current(code);
-        console.log(
-          hasil ? '[scan] cocok, masuk keranjang:' : '[scan] belum terdaftar:',
-          code,
-        );
+        console.log(hasil?.ok ? '[scan] diterima:' : '[scan] ditolak:', code, hasil?.pesan ?? '');
         if (cancelled) return;
-        setAdded(hasil ?? null);
-        setNotFound(hasil ? null : code);
+
+        if (!hasil?.ok) {
+          setAdded(null);
+          setRejected(hasil?.pesan ?? code);
+          return;
+        }
+
+        setRejected(null);
+        if (sekali) {
+          closeRef.current();
+          return;
+        }
+        setAdded(hasil);
       };
 
       if (mode === 'native') {
@@ -220,7 +243,7 @@ function Kamera({ mode, onDetect, onClose, onManual }) {
       streamRef.current?.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     };
-  }, [mode]);
+  }, [mode, sekali]);
 
   // The confirmation clears itself. Scanning a queue of items should never
   // need a tap to acknowledge each one.
@@ -271,11 +294,7 @@ function Kamera({ mode, onDetect, onClose, onManual }) {
           </div>
         )}
 
-        {notFound && (
-          <p className="pindai__pesan pindai__pesan--gagal">
-            {t.error.barcodeTidakAda(notFound)}
-          </p>
-        )}
+        {rejected && <p className="pindai__pesan pindai__pesan--gagal">{rejected}</p>}
 
         <div className="pindai__aksi">
           {torch !== null && (
@@ -307,9 +326,9 @@ function KetikBarcode({ reason, onDetect, onClose }) {
   const submit = async (value) => {
     const code = value.trim();
     if (!code) return;
-    const ok = await onDetect(code);
-    if (ok) onClose();
-    else setError(t.error.barcodeTidakAda(code));
+    const hasil = await onDetect(code);
+    if (hasil?.ok) onClose();
+    else setError(hasil?.pesan ?? code);
   };
 
   return (

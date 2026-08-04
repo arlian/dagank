@@ -1,7 +1,11 @@
+import { useState } from 'react';
 import { t, noun } from '../strings/id.js';
 import { MODIFIER_SUGGESTIONS } from '../profiles/index.js';
+import { findByBarcode } from '../data/items.js';
 import { useSettings } from './settings-context.jsx';
 import MoneyInput from './MoneyInput.jsx';
+import ScanBarcode from './ScanBarcode.jsx';
+import { IconScan } from './icons.jsx';
 
 /**
  * The item form is where the generalisation succeeds or fails. It is built
@@ -14,6 +18,22 @@ export default function ItemForm({ value, onChange, errors = {}, categories = []
   const { features, profile } = settings;
   const words = noun(profile);
   const set = (patch) => onChange({ ...value, ...patch });
+  const [scanning, setScanning] = useState(false);
+
+  /**
+   * Refuses a code another item already carries. Two items sharing a barcode
+   * makes the till's lookup ambiguous, and it would surface later as the wrong
+   * item being rung up, long after anyone remembers this screen.
+   */
+  const ambilBarcode = async (code) => {
+    const kode = code.trim();
+    const pakai = await findByBarcode(kode);
+    if (pakai && pakai.id !== value.id) {
+      return { ok: false, pesan: t.error.barcodeDipakai(pakai.name) };
+    }
+    set({ barcode: kode });
+    return { ok: true };
+  };
 
   return (
     <div className="stack">
@@ -80,15 +100,36 @@ export default function ItemForm({ value, onChange, errors = {}, categories = []
           <label className="field__label" htmlFor="barcode">
             {t.barang.barcode}
           </label>
-          <input
-            id="barcode"
-            className="input"
-            inputMode="numeric"
-            autoComplete="off"
-            value={value.barcode ?? ''}
-            onChange={(e) => set({ barcode: e.target.value || null })}
-          />
+          {/* Seeding a kelontong means several hundred items, and typing a
+              13-digit code each time is the barrier that stops it happening.
+              Scanning turns each one into a scan plus two fields. */}
+          <div className="row">
+            <input
+              id="barcode"
+              className="input"
+              inputMode="numeric"
+              autoComplete="off"
+              value={value.barcode ?? ''}
+              onChange={(e) => set({ barcode: e.target.value || null })}
+            />
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setScanning(true)}
+              aria-label={t.kasir.scan}
+            >
+              <IconScan width="22" height="22" />
+            </button>
+          </div>
         </div>
+      )}
+
+      {scanning && (
+        <ScanBarcode
+          sekali
+          onDetect={ambilBarcode}
+          onClose={() => setScanning(false)}
+        />
       )}
 
       {features.satuan && (

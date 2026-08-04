@@ -56,7 +56,7 @@ export default function Kasir() {
    */
   const onScan = async (code) => {
     const item = await findByBarcode(code.trim());
-    if (!item) return null;
+    if (!item) return { ok: false, pesan: t.error.barcodeTidakAda(code) };
 
     // Read the count from the current lines and add one: this runs before the
     // state update lands, so the stored value is still the previous total.
@@ -66,7 +66,7 @@ export default function Kasir() {
 
     add(item);
     navigator.vibrate?.(30);
-    return { nama: item.name, harga: item.price, qty: sebelum + 1 };
+    return { ok: true, nama: item.name, harga: item.price, qty: sebelum + 1 };
   };
 
   return (

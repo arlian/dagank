@@ -179,6 +179,7 @@ export const t = {
     takDidukung: 'Browser ini belum bisa scan barcode lewat kamera. Yang sudah bisa: Chrome di Android.',
     takAdaKamera: 'Perangkat ini tidak punya kamera.',
     barcodeTidakAda: (kode) => `Barcode ${kode} belum terdaftar. Tambah dulu di Barang.`,
+    barcodeDipakai: (nama) => `Barcode ini sudah dipakai ${nama}.`,
     fileSalah: 'File cadangan tidak bisa dibaca',
     versiSalah: 'File cadangan ini dari versi lain dan tidak bisa dipakai',
   },
