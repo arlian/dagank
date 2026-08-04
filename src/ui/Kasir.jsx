@@ -49,12 +49,24 @@ export default function Kasir() {
     [items],
   );
 
+  /**
+   * Returns what was added so the scanner can confirm it by name. A bare
+   * `true` is not enough: the cashier needs to see WHICH item landed, and how
+   * many of it are now on the sale, without leaving the camera.
+   */
   const onScan = async (code) => {
     const item = await findByBarcode(code.trim());
-    if (!item) return false;
+    if (!item) return null;
+
+    // Read the count from the current lines and add one: this runs before the
+    // state update lands, so the stored value is still the previous total.
+    const sebelum = lines
+      .filter((l) => l.itemId === item.id)
+      .reduce((sum, l) => sum + l.qty, 0);
+
     add(item);
     navigator.vibrate?.(30);
-    return true;
+    return { nama: item.name, harga: item.price, qty: sebelum + 1 };
   };
 
   return (

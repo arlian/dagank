@@ -35,6 +35,7 @@ export const t = {
     senterNyala: 'Nyalakan senter',
     senterMati: 'Matikan senter',
     ketikBarcode: 'Ketik barcode',
+    ditambahkan: 'Masuk keranjang',
     sering: 'Sering dibeli',
     bayar: (total) => `Bayar ${total}`,
     total: 'Total',

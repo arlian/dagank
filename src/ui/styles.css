@@ -642,6 +642,83 @@ select {
   background: var(--merah);
 }
 
+/* Confirmation after a successful scan. Prominent enough to catch at arm's
+   length, but it clears itself: a cashier scanning a basket of twenty items
+   should never have to acknowledge each one. */
+.masuk {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 16px 12px;
+  padding: 12px 14px;
+  border-radius: var(--sudut-besar);
+  background: var(--kertas);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  animation: masukNaik 140ms ease-out both;
+}
+
+.masuk__cek {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--hijau-cerah);
+  color: #fff;
+}
+
+.masuk__isi {
+  flex: 1;
+  min-width: 0;
+}
+
+.masuk__nama {
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.masuk__sub {
+  font-size: 0.85rem;
+  color: var(--teks-2);
+  font-weight: 600;
+}
+
+/* Only shown from the second one onward, where it answers the question the
+   cashier actually has: did that scan register twice? */
+.masuk__qty {
+  flex: none;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: var(--hijau-muda);
+  color: var(--hijau);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+@keyframes masukNaik {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .masuk {
+    animation: none;
+  }
+}
+
 .pindai__aksi {
   position: relative;
   display: flex;

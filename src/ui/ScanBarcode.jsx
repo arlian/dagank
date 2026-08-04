@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { t } from '../strings/id.js';
+import { rupiah } from '../domain/money.js';
+import { IconCek } from './icons.jsx';
 
 /**
  * Getting a barcode into the till, by camera where the browser can, by typing
@@ -69,6 +71,7 @@ function Kamera({ mode, onDetect, onClose, onManual }) {
   detectRef.current = onDetect;
 
   const [status, setStatus] = useState('minta');
+  const [added, setAdded] = useState(null);
   const [notFound, setNotFound] = useState(null);
   const [torch, setTorch] = useState(null);
 
@@ -136,12 +139,14 @@ function Kamera({ mode, onDetect, onClose, onManual }) {
         console.log('[scan] terbaca:', code, { format, decoder: mode });
 
         navigator.vibrate?.(40);
-        const ok = await detectRef.current(code);
+        const hasil = await detectRef.current(code);
         console.log(
-          ok ? '[scan] cocok, masuk keranjang:' : '[scan] belum terdaftar:',
+          hasil ? '[scan] cocok, masuk keranjang:' : '[scan] belum terdaftar:',
           code,
         );
-        if (!cancelled) setNotFound(ok ? null : code);
+        if (cancelled) return;
+        setAdded(hasil ?? null);
+        setNotFound(hasil ? null : code);
       };
 
       if (mode === 'native') {
@@ -217,6 +222,14 @@ function Kamera({ mode, onDetect, onClose, onManual }) {
     };
   }, [mode]);
 
+  // The confirmation clears itself. Scanning a queue of items should never
+  // need a tap to acknowledge each one.
+  useEffect(() => {
+    if (!added) return undefined;
+    const timer = setTimeout(() => setAdded(null), 1600);
+    return () => clearTimeout(timer);
+  }, [added]);
+
   const toggleTorch = async () => {
     const track = streamRef.current?.getVideoTracks()[0];
     if (!track) return;
@@ -244,6 +257,19 @@ function Kamera({ mode, onDetect, onClose, onManual }) {
         {status === 'minta' && <p className="pindai__pesan">{t.kasir.mintaKamera}</p>}
         {status === 'ditolak' && <p className="pindai__pesan">{t.error.kameraDitolak}</p>}
         {status === 'gagal' && <p className="pindai__pesan">{t.error.kameraGagal}</p>}
+
+        {added && (
+          <div className="masuk" role="status">
+            <IconCek className="masuk__cek" />
+            <div className="masuk__isi">
+              <div className="masuk__nama">{added.nama}</div>
+              <div className="masuk__sub">
+                {t.kasir.ditambahkan} · {rupiah(added.harga)}
+              </div>
+            </div>
+            {added.qty > 1 && <span className="masuk__qty">{added.qty}</span>}
+          </div>
+        )}
 
         {notFound && (
           <p className="pindai__pesan pindai__pesan--gagal">
