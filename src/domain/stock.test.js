@@ -3,10 +3,13 @@ import {
   currentStock,
   movementsForSale,
   opnameMovement,
+  purchaseMovement,
   reversalMovements,
   stockAfterCart,
   stockByItem,
+  stockList,
   stockWarning,
+  wasteMovement,
 } from './stock.js';
 
 const line = (over = {}) => ({
@@ -78,6 +81,65 @@ describe('opnameMovement', () => {
   it('records the difference and keeps the counted and believed figures', () => {
     const m = opnameMovement('itm1', 47, 50);
     expect(m).toMatchObject({ type: 'adjustment', qty: -3, counted: 47, previous: 50 });
+  });
+
+  it('counts a shelf down to nothing', () => {
+    expect(opnameMovement('itm1', 0, 12).qty).toBe(-12);
+  });
+});
+
+describe('purchaseMovement', () => {
+  it('adds what arrived and keeps the reason', () => {
+    const m = purchaseMovement('itm1', 24, 'Kulakan pasar');
+    expect(m).toMatchObject({ type: 'purchase', qty: 24, note: 'Kulakan pasar' });
+  });
+
+  // The bug this file exists to prevent: before this, stock only ever moved
+  // out, so the count went wrong on the first restock and stayed wrong.
+  it('restores a shelf that sales had emptied', () => {
+    const sold = movementsForSale([line({ qty: 10 })], 'sale1');
+    expect(currentStock([{ qty: 10 }, ...sold, purchaseMovement('itm1', 24)])).toBe(24);
+  });
+});
+
+describe('wasteMovement', () => {
+  it('takes goods off the shelf without them reading as a sale', () => {
+    const m = wasteMovement('itm1', 3, 'Kadaluarsa');
+    expect(m).toMatchObject({ type: 'waste', qty: -3, note: 'Kadaluarsa' });
+  });
+});
+
+describe('stockList', () => {
+  const items = [
+    { id: 'a', name: 'Beras', trackStock: true },
+    { id: 'b', name: 'Nasi goreng', trackStock: false },
+    { id: 'c', name: 'Air mineral', trackStock: true, minStock: 5 },
+    { id: 'd', name: 'Gula', trackStock: true },
+  ];
+  const stock = new Map([
+    ['a', 20],
+    ['c', 3],
+    ['d', 0],
+  ]);
+
+  it('leaves out items that do not track stock', () => {
+    expect(stockList(items, stock).map((r) => r.item.id)).not.toContain('b');
+  });
+
+  // Alphabetical would bury the empty shelf under the full one, and the empty
+  // shelf is the only reason anyone opens this screen.
+  it('puts what ran out first, then what is running low', () => {
+    expect(stockList(items, stock).map((r) => r.item.id)).toEqual(['d', 'c', 'a']);
+  });
+
+  it('carries the derived count and its warning', () => {
+    const [first] = stockList(items, stock);
+    expect(first).toMatchObject({ count: 0, warn: 'habis' });
+  });
+
+  it('treats an item with no movements as zero rather than unknown', () => {
+    const [only] = stockList([{ id: 'z', name: 'Teh', trackStock: true }], new Map());
+    expect(only.count).toBe(0);
   });
 });
 

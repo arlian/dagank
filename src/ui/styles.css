@@ -453,6 +453,28 @@ select {
   color: var(--hijau);
 }
 
+/* A chip acting as a main control rather than a filter, so it takes the full
+   48px target instead of the 40px a filter row can afford. */
+.chip--besar {
+  min-height: var(--tap);
+  font-size: 1rem;
+}
+
+/* ---------- quantity ---------- */
+
+.qty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qty__input {
+  flex: 1;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
 /* ---------- running lines ---------- */
 
 .lines {

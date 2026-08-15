@@ -1,7 +1,12 @@
 // Items, and the movements that derive their stock.
 
 import { db, newId, stamps, touch } from './db.js';
-import { stockByItem } from '../domain/stock.js';
+import {
+  opnameMovement,
+  purchaseMovement,
+  stockByItem,
+  wasteMovement,
+} from '../domain/stock.js';
 
 const alive = (row) => !row.deletedAt;
 
@@ -85,16 +90,40 @@ export const stockFor = async (itemId) => {
 
 export const allStock = async () => stockByItem(await db.movements.toArray());
 
-export const recordMovement = (itemId, type, qty, note = null) =>
-  db.movements.add({
-    id: newId(),
-    itemId,
-    type,
-    qty,
-    saleId: null,
-    note,
-    ...stamps(),
+const addMovement = (movement) =>
+  db.movements.add({ id: newId(), saleId: null, note: null, ...movement, ...stamps() });
+
+/** Barang masuk. Appended, never an edit of a stored counter. */
+export const recordPurchase = (itemId, qty, note = null) =>
+  addMovement(purchaseMovement(itemId, qty, note));
+
+/** Rusak or kadaluarsa. */
+export const recordWaste = (itemId, qty, note = null) =>
+  addMovement(wasteMovement(itemId, qty, note));
+
+/**
+ * Stok opname. The previous figure is read inside the transaction rather than
+ * passed in from the screen, because a sale rung up while the shelf was being
+ * counted would otherwise be silently swallowed by the adjustment.
+ */
+export async function recordOpname(itemId, counted) {
+  return db.transaction('rw', db.movements, async () => {
+    const previous = await stockFor(itemId);
+    return addMovement(opnameMovement(itemId, counted, previous));
   });
+}
+
+/**
+ * Why a number changed, newest first. This is the whole support story.
+ *
+ * Ordered by id rather than createdAt: the ids are monotonic ULIDs, so they
+ * separate two movements written inside the same millisecond, which a
+ * timestamp cannot.
+ */
+export async function movementsFor(itemId, limit = 20) {
+  const rows = await db.movements.where('itemId').equals(itemId).toArray();
+  return rows.sort((a, b) => (a.id < b.id ? 1 : -1)).slice(0, limit);
+}
 
 /** The few items that account for most sales, for the "sering dibeli" row. */
 export async function frequentItems(limit = 4) {

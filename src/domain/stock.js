@@ -40,6 +40,20 @@ export function reversalMovements(movements = [], reversalSaleId) {
   }));
 }
 
+/** Barang masuk: a kulakan run arriving. Positive, goods entered the shop. */
+export function purchaseMovement(itemId, qty, note = null) {
+  return { itemId, type: 'purchase', qty, saleId: null, note };
+}
+
+/**
+ * Rusak or kadaluarsa. Typed separately from a sale on purpose: both take
+ * goods off the shelf, but only one of them brought money in, and a shop that
+ * cannot tell them apart cannot see what it is losing.
+ */
+export function wasteMovement(itemId, qty, note = null) {
+  return { itemId, type: 'waste', qty: -qty, saleId: null, note };
+}
+
 /**
  * A stok opname records what was counted, what the app believed, and the
  * difference, so shrinkage stays visible instead of being silently absorbed.
@@ -83,6 +97,29 @@ export function stockAfterCart(stock, lines = []) {
     left.set(line.itemId, (left.get(line.itemId) ?? 0) - baseQty(line));
   }
   return left;
+}
+
+/**
+ * The tracked items with their derived count, worst first.
+ *
+ * Alphabetical is the wrong order here. Someone opens this screen straight
+ * after a kulakan run, holding a bag, looking for what ran out — so what ran
+ * out goes at the top rather than wherever its name happens to fall.
+ */
+export function stockList(items = [], stock = new Map()) {
+  const RANK = { kurang: 0, habis: 1, menipis: 2 };
+
+  return items
+    .filter((item) => item.trackStock)
+    .map((item) => {
+      const count = stock.get(item.id) ?? 0;
+      return { item, count, warn: stockWarning(item, count) };
+    })
+    .sort(
+      (a, b) =>
+        (RANK[a.warn] ?? 3) - (RANK[b.warn] ?? 3) ||
+        a.item.name.localeCompare(b.item.name, 'id'),
+    );
 }
 
 /**

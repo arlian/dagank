@@ -17,6 +17,7 @@ export const t = {
     batal: 'Batal',
     hapus: 'Hapus',
     tambah: 'Tambah',
+    kurangi: 'Kurangi',
     ubah: 'Ubah',
     selesai: 'Selesai',
     kembali: 'Kembali',
@@ -84,6 +85,39 @@ export const t = {
     sisaStok: (n) => `Sisa ${n}`,
     contoh: 'Contoh',
     hapusContoh: 'Hapus semua barang contoh',
+  },
+
+  stok: {
+    judul: 'Stok',
+    buka: 'Stok',
+    aman: 'Semua stok aman',
+    ringkas: (habis, menipis) =>
+      [habis && `${habis} habis`, menipis && `${menipis} menipis`]
+        .filter(Boolean)
+        .join(' · '),
+    kosong: 'Belum ada barang yang dicatat stoknya.',
+    kosongPetunjuk: 'Nyalakan "Catat stok barang ini" waktu menambah barang.',
+    sekarang: 'Stok sekarang',
+    masuk: 'Barang masuk',
+    masukPetunjuk: 'Jumlah yang baru datang.',
+    opname: 'Stok opname',
+    opnamePetunjuk: 'Jumlah hasil hitung di rak sekarang.',
+    rusak: 'Barang rusak',
+    rusakPetunjuk: 'Jumlah yang rusak atau kadaluarsa.',
+    jumlah: 'Jumlah',
+    jadi: (n) => `Stok jadi ${n}`,
+    selisih: 'Selisih',
+    catatan: 'Catatan',
+    catatanPetunjuk: 'Boleh dikosongkan.',
+    riwayat: 'Riwayat',
+    belumAdaRiwayat: 'Belum ada perubahan stok.',
+    tipe: {
+      sale: 'Terjual',
+      reversal: 'Penjualan dibatalkan',
+      purchase: 'Barang masuk',
+      adjustment: 'Stok opname',
+      waste: 'Barang rusak',
+    },
   },
 
   utang: {

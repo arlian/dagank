@@ -1,7 +1,17 @@
 import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db, TABLES } from './db.js';
-import { createItem, deleteItem, findByBarcode, searchItems, stockFor } from './items.js';
+import {
+  createItem,
+  deleteItem,
+  findByBarcode,
+  movementsFor,
+  recordOpname,
+  recordPurchase,
+  recordWaste,
+  searchItems,
+  stockFor,
+} from './items.js';
 
 beforeEach(async () => {
   for (const table of TABLES) await db.table(table).clear();
@@ -69,5 +79,60 @@ describe('createItem', () => {
   it('writes no movement when the item does not track stock', async () => {
     await createItem({ name: 'Nasi goreng', price: 15000 }, { stokAwal: 10 });
     expect(await db.movements.count()).toBe(0);
+  });
+});
+
+describe('stock movements', () => {
+  const beras = () =>
+    createItem({ name: 'Beras 1 kg', price: 13000, trackStock: true }, { stokAwal: 10 });
+
+  it('adds what a kulakan run brought in', async () => {
+    const item = await beras();
+    await recordPurchase(item.id, 24, 'Kulakan pasar');
+    expect(await stockFor(item.id)).toBe(34);
+  });
+
+  it('takes waste off the shelf under its own type', async () => {
+    const item = await beras();
+    await recordWaste(item.id, 2, 'Kena air');
+    expect(await stockFor(item.id)).toBe(8);
+    const [latest] = await movementsFor(item.id);
+    expect(latest).toMatchObject({ type: 'waste', qty: -2, note: 'Kena air' });
+  });
+
+  it('sets stock to the counted figure and keeps the shrinkage visible', async () => {
+    const item = await beras();
+    await recordOpname(item.id, 7);
+
+    expect(await stockFor(item.id)).toBe(7);
+    const [latest] = await movementsFor(item.id);
+    expect(latest).toMatchObject({ type: 'adjustment', qty: -3, counted: 7, previous: 10 });
+  });
+
+  // The reason opname reads its own "previous" instead of taking one from the
+  // screen: a sale rung up while the shelf was being counted must not be
+  // swallowed by the adjustment.
+  it('reads the previous figure at write time, not at screen-open time', async () => {
+    const item = await beras();
+    await recordWaste(item.id, 4); // something moves after the screen opened
+    await recordOpname(item.id, 7);
+
+    const [latest] = await movementsFor(item.id);
+    expect(latest.previous).toBe(6);
+    expect(await stockFor(item.id)).toBe(7);
+  });
+
+  it('corrects by appending, never by editing what was already written', async () => {
+    const item = await beras();
+    await recordOpname(item.id, 7);
+    expect(await db.movements.where('itemId').equals(item.id).count()).toBe(2);
+  });
+
+  it('lists the history newest first', async () => {
+    const item = await beras();
+    await recordPurchase(item.id, 5);
+    const history = await movementsFor(item.id);
+    expect(history.map((m) => m.type)).toEqual(['purchase', 'purchase']);
+    expect(history[0].createdAt).toBeGreaterThanOrEqual(history[1].createdAt);
   });
 });

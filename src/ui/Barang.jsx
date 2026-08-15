@@ -9,11 +9,12 @@ import {
   updateItem,
 } from '../data/items.js';
 import { listCategories } from '../data/settings.js';
-import { stockWarning } from '../domain/stock.js';
+import { stockList, stockWarning } from '../domain/stock.js';
 import { rupiah } from '../domain/money.js';
 import { t, noun } from '../strings/id.js';
 import { useSettings } from './settings-context.jsx';
 import ItemForm, { validateItem } from './ItemForm.jsx';
+import Stok from './Stok.jsx';
 
 export default function Barang() {
   const { settings } = useSettings();
@@ -22,10 +23,17 @@ export default function Barang() {
   const [editing, setEditing] = useState(null);
   const [draft, setDraft] = useState(emptyItem);
   const [errors, setErrors] = useState({});
+  const [stokOpen, setStokOpen] = useState(false);
 
   const items = useLiveQuery(listItems, [], []);
   const stock = useLiveQuery(allStock, [], new Map());
   const categories = useLiveQuery(listCategories, [], []);
+
+  // Absent, not disabled, when the shop does not track stock at all or has not
+  // switched it on for a single item yet.
+  const tracked = settings.features.stok ? stockList(items, stock) : [];
+  const habis = tracked.filter((r) => r.warn === 'habis' || r.warn === 'kurang').length;
+  const menipis = tracked.filter((r) => r.warn === 'menipis').length;
 
   const open = (item) => {
     setEditing(item ?? 'baru');
@@ -73,6 +81,30 @@ export default function Barang() {
         </div>
       ) : (
         <div className="body">
+          {/* One tap to the stock screen, carrying the reason to open it. The
+              count is the point: a shopkeeper reads "2 habis" and goes, or
+              reads "aman" and gets on with serving. */}
+          {tracked.length > 0 && (
+            <div className="list">
+              <button className="list__item" onClick={() => setStokOpen(true)}>
+                <span className="line__main">
+                  <span className="strong">{t.stok.buka}</span>
+                  <br />
+                  <span className="muted">
+                    {habis + menipis === 0
+                      ? t.stok.aman
+                      : t.stok.ringkas(habis, menipis)}
+                  </span>
+                </span>
+                {habis + menipis > 0 && (
+                  <span className={`badge badge--${habis > 0 ? 'danger' : 'warn'}`}>
+                    {habis + menipis}
+                  </span>
+                )}
+              </button>
+            </div>
+          )}
+
           <div className="list">
             {items.map((item) => {
               const count = stock.get(item.id) ?? 0;
@@ -101,6 +133,8 @@ export default function Barang() {
           </div>
         </div>
       )}
+
+      {stokOpen && <Stok onClose={() => setStokOpen(false)} />}
 
       {editing && (
         <div className="sheet" role="dialog" aria-label={words.tambah}>
