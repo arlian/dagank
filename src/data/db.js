@@ -1,7 +1,7 @@
 // The device is the database. Nothing in this folder may await the network.
 
 import Dexie from 'dexie';
-import { ulid } from 'ulid';
+import { monotonicFactory } from 'ulid';
 
 export const db = new Dexie('kasir');
 
@@ -23,8 +23,18 @@ db.version(1).stores({
 
 export const SCHEMA_VERSION = 1;
 
-/** IDs are generated here, never by a server. ULIDs sort by creation time. */
-export const newId = () => ulid();
+/**
+ * IDs are generated here, never by a server. ULIDs sort by creation time.
+ *
+ * Monotonic, because a plain ULID only orders correctly across milliseconds:
+ * two written inside the same one get independent random tails and can come
+ * back in either order. Two movements on one item land in the same
+ * millisecond easily, and their order is the whole story a stock history
+ * tells, so the tail is made to increment instead.
+ */
+const nextId = monotonicFactory();
+
+export const newId = () => nextId();
 
 /** Stamped on every record so a later merge has something to work with. */
 export const stamps = () => {
