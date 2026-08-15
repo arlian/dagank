@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../data/db.js';
 import { linesForSales, salesOn, voidSale } from '../data/sales.js';
@@ -6,10 +7,12 @@ import { rupiah } from '../domain/money.js';
 import { t, jam } from '../strings/id.js';
 import { useSettings } from './settings-context.jsx';
 import Kas from './Kas.jsx';
+import Struk from './Struk.jsx';
 
 export default function Laporan() {
   const { settings } = useSettings();
   const { features } = settings;
+  const [struk, setStruk] = useState(null);
 
   const data = useLiveQuery(async () => {
     const sales = await salesOn();
@@ -114,7 +117,10 @@ export default function Laporan() {
           <div className="list">
             {[...sales].reverse().map((sale) => (
               <div key={sale.id} className="list__item">
-                <span className="line__main">
+                {/* The row opens its struk, which is how a reprint happens.
+                    Its own button rather than the whole row, so Batal stays a
+                    separate target and cannot be hit by accident. */}
+                <button className="list__buka" onClick={() => setStruk(sale)}>
                   <span className="strong">{rupiah(sale.total)}</span>
                   {sale.status === 'batal' && (
                     <span className="badge badge--danger"> {t.laporan.batal}</span>
@@ -122,9 +128,9 @@ export default function Laporan() {
                   <br />
                   <span className="muted">
                     {jam(sale.createdAt)} ·{' '}
-                    {(linesBySale.get(sale.id) ?? []).length} item
+                    {(linesBySale.get(sale.id) ?? []).length} item · {t.struk.lihat}
                   </span>
-                </span>
+                </button>
                 {sale.status === 'selesai' && (
                   <button className="btn btn--danger" onClick={() => batalkan(sale)}>
                     {t.aksi.batal}
@@ -135,6 +141,8 @@ export default function Laporan() {
           </div>
         </div>
       )}
+
+      {struk && <Struk sale={struk} onClose={() => setStruk(null)} />}
     </div>
   );
 }

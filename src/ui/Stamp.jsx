@@ -12,7 +12,7 @@ import { IconCek } from './icons.jsx';
  * A sale left partly unpaid gets the opposite mark, in red, so the two are
  * impossible to confuse at a glance across a counter.
  */
-export default function Stamp({ sale, onDone }) {
+export default function Stamp({ sale, onDone, onStruk }) {
   const lunas = (sale.payment?.paid ?? 0) >= sale.total;
   const kembalian = sale.payment?.change ?? 0;
   const kurang = Math.max(sale.total - (sale.payment?.paid ?? 0), 0);
@@ -36,6 +36,19 @@ export default function Stamp({ sale, onDone }) {
             : t.bayar.uangPas
           : `${t.utang.totalUtang} ${rupiah(kurang)}`}
       </div>
+
+      {/* Offered, never imposed: most sales here want no paper, so the sale
+          flow gains no tap. Taking it up cancels the dismissal, because the
+          receipt outliving the stamp by 1.4 seconds is the whole point. */}
+      <button
+        className="btn btn--block btn--lg stamp__struk"
+        onClick={(e) => {
+          e.stopPropagation();
+          onStruk();
+        }}
+      >
+        {t.struk.lihat}
+      </button>
     </div>
   );
 }

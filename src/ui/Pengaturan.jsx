@@ -11,12 +11,15 @@ import { removeSampleItems } from '../data/items.js';
 import { PRESETS } from '../profiles/index.js';
 import { t, tanggal } from '../strings/id.js';
 import { useSettings } from './settings-context.jsx';
+import { PrinterPengaturan } from './Struk.jsx';
 
 const FLAGS = ['stok', 'barcode', 'satuan', 'modifier', 'utang', 'modal', 'shift'];
 
 export default function Pengaturan() {
   const { settings, refresh } = useSettings();
   const [nama, setNama] = useState(settings.namaUsaha);
+  const [alamat, setAlamat] = useState(settings.alamat ?? '');
+  const [telepon, setTelepon] = useState(settings.telepon ?? '');
   const [lastExport, setLastExport] = useState(undefined);
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
@@ -68,10 +71,64 @@ export default function Pengaturan() {
               }}
             />
           </div>
+          {/* Both go in the struk header, and nowhere else, so both are
+              optional: a gorengan cart has neither and needs neither. */}
+          <div className="field">
+            <label className="field__label" htmlFor="alamat">
+              {t.pengaturan.alamat}
+            </label>
+            <input
+              id="alamat"
+              className="input"
+              value={alamat}
+              onChange={(e) => setAlamat(e.target.value)}
+              onBlur={async () => {
+                await saveSettings({ alamat: alamat.trim() });
+                await refresh();
+              }}
+            />
+            <span className="field__hint">{t.pengaturan.alamatPetunjuk}</span>
+          </div>
+
+          <div className="field">
+            <label className="field__label" htmlFor="telepon">
+              {t.pengaturan.telepon}
+            </label>
+            <input
+              id="telepon"
+              className="input"
+              inputMode="tel"
+              value={telepon}
+              onChange={(e) => setTelepon(e.target.value)}
+              onBlur={async () => {
+                await saveSettings({ telepon: telepon.trim() });
+                await refresh();
+              }}
+            />
+          </div>
+
           <div className="stat">
             <span>{t.pengaturan.jenisUsaha}</span>
             <span className="muted">{PRESETS[settings.profile]?.label ?? '—'}</span>
           </div>
+        </div>
+
+        {/* Pairing belongs here, once per session, not at the till with a
+            customer waiting for their change. */}
+        <div className="card stack">
+          <h2>{t.pengaturan.printer}</h2>
+          <PrinterPengaturan />
+          <label className="switch">
+            <span>{t.struk.laci}</span>
+            <input
+              type="checkbox"
+              checked={!!settings.laciUang}
+              onChange={async (e) => {
+                await saveSettings({ laciUang: e.target.checked });
+                await refresh();
+              }}
+            />
+          </label>
         </div>
 
         <div className="card">

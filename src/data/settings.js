@@ -8,9 +8,15 @@ const KEY = 'settings';
 
 export const DEFAULT_SETTINGS = {
   namaUsaha: '',
+  // Printed in the struk header. Optional: a gorengan cart has neither.
+  alamat: '',
+  telepon: '',
   profile: null,
   features: normaliseFeatures(),
   rounding: 'none',
+  // Off by default: sending the kick to a printer with no drawer wired to it
+  // is harmless but pointless.
+  laciUang: false,
   onboarded: false,
 };
 

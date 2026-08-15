@@ -930,6 +930,55 @@ select {
   background: var(--latar);
 }
 
+/* The left half of a row, when the row carries a second action of its own. */
+.list__buka {
+  flex: 1;
+  min-height: var(--tap);
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
+/* ---------- struk preview ---------- */
+
+/* What comes out of the printer, at the width it comes out at: 32 monospace
+   characters. Scrolls rather than wraps, because a wrapped preview would show
+   a layout the paper will never produce. */
+.struk {
+  background: var(--kertas);
+  border: 1px solid var(--garis);
+  border-radius: var(--sudut);
+  padding: 12px;
+  overflow-x: auto;
+  font-family: 'Courier New', ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre;
+}
+
+.struk__baris {
+  min-width: 32ch;
+}
+
+.struk__baris--tebal {
+  font-weight: 700;
+}
+
+.struk__baris--besar {
+  font-weight: 700;
+  font-size: 17px;
+}
+
+.stamp__struk {
+  margin-top: 20px;
+  max-width: 220px;
+  background: var(--kertas);
+  border: 1.5px solid var(--garis);
+}
+
 .stat {
   display: flex;
   align-items: baseline;

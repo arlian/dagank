@@ -135,6 +135,26 @@ export const t = {
     sejak: (hari) => `Sudah ${hari} hari`,
   },
 
+  struk: {
+    judul: 'Struk',
+    lihat: 'Struk',
+    cetak: 'Cetak',
+    cetakUlang: 'Cetak struk',
+    bagikan: 'Bagikan',
+    bagikanPetunjuk: 'Kirim ke WhatsApp pembeli.',
+    tersalin: 'Struk disalin. Tinggal paste di WhatsApp.',
+    lewatBrowser: 'Cetak lewat browser',
+    sambung: 'Sambungkan printer',
+    putus: 'Putuskan',
+    tersambung: (nama) => `Printer tersambung: ${nama}`,
+    belumTersambung: 'Printer belum tersambung',
+    mencetak: 'Mengirim ke printer...',
+    sudahDicetak: 'Struk terkirim ke printer.',
+    laci: 'Buka laci uang saat cetak',
+    takAdaBluetooth:
+      'HP ini tidak bisa sambung printer Bluetooth lewat browser. Struk masih bisa dibagikan atau dicetak lewat browser.',
+  },
+
   kas: {
     judul: 'Kas',
     tutup: 'Tutup kasir',
@@ -175,6 +195,9 @@ export const t = {
   pengaturan: {
     judul: 'Pengaturan',
     namaUsaha: 'Nama usaha',
+    alamat: 'Alamat',
+    alamatPetunjuk: 'Dicetak di struk. Boleh dikosongkan.',
+    telepon: 'Nomor HP',
     jenisUsaha: 'Jenis usaha',
     fitur: 'Fitur',
     fiturPetunjuk: 'Matikan yang tidak kamu pakai supaya layar lebih ringkas.',
@@ -238,6 +261,11 @@ export const t = {
     barcodeDipakai: (nama) => `Barcode ini sudah dipakai ${nama}.`,
     fileSalah: 'File cadangan tidak bisa dibaca',
     versiSalah: 'File cadangan ini dari versi lain dan tidak bisa dipakai',
+    printerTakDidukung:
+      'Browser ini belum bisa sambung printer Bluetooth. Yang sudah bisa: Chrome di Android.',
+    printerTakDikenali: 'Printer ini belum dikenali. Coba matikan lalu nyalakan lagi.',
+    printerGagal: 'Struk gagal dikirim. Cek printer masih nyala dan dekat.',
+    bagikanGagal: 'Struk belum bisa dibagikan dari HP ini.',
   },
 };
 

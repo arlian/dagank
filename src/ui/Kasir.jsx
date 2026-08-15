@@ -11,6 +11,7 @@ import Bayar from './Bayar.jsx';
 import Stamp from './Stamp.jsx';
 import { IconScan } from './icons.jsx';
 import ScanBarcode from './ScanBarcode.jsx';
+import Struk from './Struk.jsx';
 
 export default function Kasir() {
   const { settings } = useSettings();
@@ -22,6 +23,7 @@ export default function Kasir() {
   const [query, setQuery] = useState('');
   const [paying, setPaying] = useState(false);
   const [stamped, setStamped] = useState(null);
+  const [struk, setStruk] = useState(null);
 
   const items = useLiveQuery(listItems, [], []);
   const stock = useLiveQuery(allStock, [], new Map());
@@ -163,7 +165,18 @@ export default function Kasir() {
         />
       )}
 
-      {stamped && <Stamp sale={stamped} onDone={() => setStamped(null)} />}
+      {stamped && (
+        <Stamp
+          sale={stamped}
+          onDone={() => setStamped(null)}
+          onStruk={() => {
+            setStruk(stamped);
+            setStamped(null);
+          }}
+        />
+      )}
+
+      {struk && <Struk sale={struk} onClose={() => setStruk(null)} />}
     </div>
   );
 }
