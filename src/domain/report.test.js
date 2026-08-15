@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { bestSellers, dailyRecap, dayBounds, isSameDay, shiftSummary } from './report.js';
+import {
+  bestSellers,
+  cashTaken,
+  dailyRecap,
+  dayBounds,
+  isSameDay,
+  shiftSummary,
+} from './report.js';
 
 const sale = (over = {}) => ({
   id: 's1',
@@ -98,5 +105,35 @@ describe('shiftSummary', () => {
 
   it('leaves the difference unknown until the drawer is counted', () => {
     expect(shiftSummary({ kasAwal: 100000, tunai: 450000 }).selisih).toBeNull();
+  });
+
+  // Without this the app reports a surplus every time a customer settles a tab,
+  // because that cash is in the drawer but was never a sale today.
+  it('counts utang repayments, which sit in the same drawer', () => {
+    const s = shiftSummary({
+      kasAwal: 100000,
+      tunai: 450000,
+      pembayaranUtang: 50000,
+      kasAkhir: 600000,
+    });
+    expect(s.seharusnya).toBe(600000);
+    expect(s.selisih).toBe(0);
+  });
+});
+
+describe('cashTaken', () => {
+  const sale = (over) => ({ total: 10000, payment: { method: 'tunai', paid: 10000 }, ...over });
+
+  it('counts a cash sale for what was handed over, less the change', () => {
+    expect(cashTaken([sale({ payment: { method: 'tunai', paid: 50000 } })])).toBe(10000);
+  });
+
+  // The drawer keeps the part payment, not the whole bill.
+  it('counts a part-paid utang sale for what was actually paid', () => {
+    expect(cashTaken([sale({ payment: { method: 'utang', paid: 4000 } })])).toBe(4000);
+  });
+
+  it('ignores money that never reached the drawer', () => {
+    expect(cashTaken([sale({ payment: { method: 'transfer', paid: 10000 } })])).toBe(0);
   });
 });

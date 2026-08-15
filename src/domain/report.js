@@ -21,6 +21,19 @@ export const isSameDay = (timestamp, date = new Date()) => {
 };
 
 /**
+ * Cash that physically entered the drawer from these sales.
+ *
+ * A part-paid utang sale counts for what was handed over, not for its total,
+ * and never for more: a customer who overpays gets change, so the drawer only
+ * keeps the bill. This is the rule the daily recap and the shift close both
+ * rest on, so it lives in one place.
+ */
+export const cashTaken = (sales = []) =>
+  sales
+    .filter((s) => s.payment?.method === 'tunai' || s.payment?.method === 'utang')
+    .reduce((sum, s) => sum + Math.min(s.payment?.paid ?? 0, s.total), 0);
+
+/**
  * The recap an owner actually wants. `sales` are the completed and voided
  * sales of the day; `linesBySale` maps a sale id to its lines.
  */
@@ -82,12 +95,24 @@ export function bestSellers(lines = [], limit = 5) {
   return [...map.values()].sort((a, b) => b.qty - a.qty).slice(0, limit);
 }
 
-/** Expected cash in the drawer at close, and the selisih once counted. */
-export function shiftSummary({ kasAwal = 0, tunai = 0, kasAkhir = null } = {}) {
-  const seharusnya = kasAwal + tunai;
+/**
+ * Expected cash in the drawer at close, and the selisih once counted.
+ *
+ * Utang repayments are counted separately from sales but sit in the same
+ * drawer, so leaving them out would report a surplus every time a customer
+ * settled a tab.
+ */
+export function shiftSummary({
+  kasAwal = 0,
+  tunai = 0,
+  pembayaranUtang = 0,
+  kasAkhir = null,
+} = {}) {
+  const seharusnya = kasAwal + tunai + pembayaranUtang;
   return {
     kasAwal,
     tunai,
+    pembayaranUtang,
     seharusnya,
     kasAkhir,
     selisih: kasAkhir == null ? null : kasAkhir - seharusnya,

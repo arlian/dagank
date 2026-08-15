@@ -12,7 +12,7 @@ import { PRESETS } from '../profiles/index.js';
 import { t, tanggal } from '../strings/id.js';
 import { useSettings } from './settings-context.jsx';
 
-const FLAGS = ['stok', 'barcode', 'satuan', 'modifier', 'utang', 'modal'];
+const FLAGS = ['stok', 'barcode', 'satuan', 'modifier', 'utang', 'modal', 'shift'];
 
 export default function Pengaturan() {
   const { settings, refresh } = useSettings();

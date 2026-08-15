@@ -5,6 +5,7 @@ import { bestSellers, dailyRecap, dayBounds } from '../domain/report.js';
 import { rupiah } from '../domain/money.js';
 import { t, jam } from '../strings/id.js';
 import { useSettings } from './settings-context.jsx';
+import Kas from './Kas.jsx';
 
 export default function Laporan() {
   const { settings } = useSettings();
@@ -41,12 +42,20 @@ export default function Laporan() {
         <span className="topbar__sub">{t.laporan.hariIni}</span>
       </div>
 
+      {/* Above the sales check on purpose: the drawer gets counted before the
+          first sale of the day, which is exactly when there is nothing else
+          on this screen. */}
       {sales.length === 0 ? (
-        <div className="empty">
-          <p>{t.laporan.kosong}</p>
+        <div className="body">
+          <Kas />
+          <div className="empty">
+            <p>{t.laporan.kosong}</p>
+          </div>
         </div>
       ) : (
         <div className="body">
+          <Kas />
+
           <div className="card">
             <div className="stat">
               <span>{t.laporan.penjualan}</span>
