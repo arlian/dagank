@@ -67,7 +67,13 @@ describe('shiftTotals', () => {
   // The reason totals are bounded by time: yesterday's takings must not turn
   // up in this morning's drawer.
   it('leaves out sales made before the shift opened', async () => {
-    await jual(4000);
+    const kemarin = await jual(4000);
+    // Backdated on purpose. Both writes otherwise land in the same
+    // millisecond on a quick machine, and the shift's lower bound is
+    // inclusive, so "before" and "at the moment of opening" become the same
+    // instant and the test fails perhaps one run in three.
+    await db.sales.update(kemarin.id, { createdAt: kemarin.createdAt - 60_000 });
+
     const shift = await openShift(100000);
     await jual(4000);
 
