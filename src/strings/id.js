@@ -143,6 +143,36 @@ export const t = {
     sejak: (hari) => `Sudah ${hari} hari`,
   },
 
+  pengeluaran: {
+    judul: 'Pengeluaran',
+    catat: 'Catat pengeluaran',
+    jumlah: 'Jumlah',
+    untukApa: 'Untuk apa',
+    catatan: 'Catatan',
+    catatanPetunjuk: 'Boleh dikosongkan. Contoh: beli plastik di Pasar Baru.',
+    dariLaci: 'Uang diambil dari laci',
+    dariLuar: 'Dibayar dari luar laci',
+    kosong: 'Belum ada pengeluaran hari ini.',
+    kosongPetunjuk: 'Catat belanja plastik, bensin, atau uang yang diambil dari laci.',
+    batalkan: 'Batalkan pengeluaran ini?',
+    dibatalkan: 'Dibatalkan',
+    total: 'Total keluar',
+    // Shown only when the shop tracks cost prices, because that is exactly
+    // when writing a shopping run down here counts it twice.
+    modalPeringatan:
+      'Belanja stok sudah ikut terhitung lewat harga modal. Kalau dicatat di sini juga, untungnya kepotong dua kali.',
+    kategori: {
+      belanja: 'Belanja stok',
+      transport: 'Transport',
+      listrik: 'Listrik & air',
+      gas: 'Gas',
+      sewa: 'Sewa',
+      gaji: 'Gaji',
+      pribadi: 'Ambil pribadi',
+      lain: 'Lain-lain',
+    },
+  },
+
   struk: {
     judul: 'Struk',
     lihat: 'Struk',
@@ -176,6 +206,7 @@ export const t = {
     seharusnya: 'Seharusnya',
     tunaiMasuk: 'Tunai masuk',
     utangMasuk: 'Utang dibayar',
+    keluar: 'Uang keluar',
     selisih: 'Selisih',
     pas: 'Pas',
     lebih: 'Lebih',
@@ -191,8 +222,10 @@ export const t = {
     penjualan: 'Penjualan',
     tunai: 'Tunai',
     nonTunai: 'Non tunai',
-    laba: 'Untung',
+    laba: 'Untung kotor',
     labaKosong: 'Belum bisa dihitung, ada barang tanpa harga modal',
+    pengeluaran: 'Pengeluaran',
+    sisa: 'Sisa bersih',
     utangBaru: 'Utang baru',
     pembayaranUtang: 'Utang dibayar',
     terlaris: 'Paling laku',

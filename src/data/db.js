@@ -21,7 +21,15 @@ db.version(1).stores({
   shifts: 'id, openedAt',
 });
 
-export const SCHEMA_VERSION = 1;
+// Money that leaves the shop: belanja plastik, bensin, setoran listrik, or
+// the owner taking a note out of the drawer for themselves. Indexed on
+// createdAt alone, because the only two questions asked of it are "what went
+// out today" and "what went out while this shift was open".
+db.version(2).stores({
+  expenses: 'id, createdAt',
+});
+
+export const SCHEMA_VERSION = 2;
 
 /**
  * IDs are generated here, never by a server. ULIDs sort by creation time.
@@ -53,6 +61,7 @@ export const TABLES = [
   'customers',
   'ledger',
   'shifts',
+  'expenses',
 ];
 
 /**

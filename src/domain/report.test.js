@@ -4,6 +4,8 @@ import {
   cashTaken,
   dailyRecap,
   dayBounds,
+  expenseFromDrawer,
+  expenseTotal,
   isSameDay,
   shiftSummary,
 } from './report.js';
@@ -135,5 +137,56 @@ describe('cashTaken', () => {
 
   it('ignores money that never reached the drawer', () => {
     expect(cashTaken([sale({ payment: { method: 'transfer', paid: 10000 } })])).toBe(0);
+  });
+});
+
+describe('expenses', () => {
+  const spent = (over) => ({ amount: 5000, dariLaci: true, status: 'selesai', ...over });
+
+  it('ignores cancelled entries, which stay in the table as evidence', () => {
+    expect(expenseTotal([spent(), spent({ status: 'batal' })])).toBe(5000);
+  });
+
+  // A bill paid by transfer is money gone, but it never sat in the till, so
+  // subtracting it at closing would invent a shortfall.
+  it('separates what left the drawer from what was merely spent', () => {
+    const rows = [spent(), spent({ amount: 20000, dariLaci: false })];
+    expect(expenseTotal(rows)).toBe(25000);
+    expect(expenseFromDrawer(rows)).toBe(5000);
+  });
+
+  it('takes what was spent off the drawer the shift has to account for', () => {
+    const s = shiftSummary({
+      kasAwal: 100000,
+      tunai: 450000,
+      pengeluaran: 50000,
+      kasAkhir: 500000,
+    });
+    expect(s.seharusnya).toBe(500000);
+    expect(s.selisih).toBe(0);
+  });
+
+  it('takes it off the margin too, and says so as a loss when it is one', () => {
+    const recap = dailyRecap({
+      sales: [sale()],
+      linesBySale: new Map([['s1', [line({ cost: 8000 })]]]),
+      expenses: [spent({ amount: 100000 })],
+    });
+    expect(recap.pengeluaran).toBe(100000);
+    expect(recap.sisa).toBe(recap.laba - 100000);
+    expect(recap.sisa).toBeLessThan(0);
+  });
+
+  // Selling at an unknown margin and then spending is not a number anyone can
+  // stand behind, so it is withheld rather than approximated.
+  it('withholds the net when any item has no cost price', () => {
+    const recap = dailyRecap({
+      sales: [sale()],
+      linesBySale: new Map([['s1', [line({ cost: null })]]]),
+      expenses: [spent()],
+    });
+    expect(recap.laba).toBeNull();
+    expect(recap.sisa).toBeNull();
+    expect(recap.pengeluaran).toBe(5000);
   });
 });

@@ -453,6 +453,15 @@ select {
   color: var(--hijau);
 }
 
+/* Wrapped rather than scrolled, and without the full-bleed padding the filter
+   row needs: inside a form every option has to be on screen at once, because a
+   category hidden past the right edge will simply never get picked. */
+.chips--bungkus {
+  flex-wrap: wrap;
+  overflow: visible;
+  padding: 0;
+}
+
 /* A chip acting as a main control rather than a filter, so it takes the full
    48px target instead of the 40px a filter row can afford. */
 .chip--besar {

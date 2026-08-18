@@ -33,11 +33,26 @@ export const cashTaken = (sales = []) =>
     .filter((s) => s.payment?.method === 'tunai' || s.payment?.method === 'utang')
     .reduce((sum, s) => sum + Math.min(s.payment?.paid ?? 0, s.total), 0);
 
+/** What was spent, cancelled entries excluded. */
+export const expenseTotal = (expenses = []) =>
+  expenses
+    .filter((e) => e.status !== 'batal')
+    .reduce((sum, e) => sum + (e.amount || 0), 0);
+
+/** Only the part of it that left the drawer, which is what closing counts. */
+export const expenseFromDrawer = (expenses = []) =>
+  expenseTotal(expenses.filter((e) => e.dariLaci !== false));
+
 /**
  * The recap an owner actually wants. `sales` are the completed and voided
  * sales of the day; `linesBySale` maps a sale id to its lines.
  */
-export function dailyRecap({ sales = [], linesBySale = new Map(), ledger = [] } = {}) {
+export function dailyRecap({
+  sales = [],
+  linesBySale = new Map(),
+  ledger = [],
+  expenses = [],
+} = {}) {
   const done = sales.filter((s) => s.status === 'selesai');
 
   let penjualan = 0;
@@ -66,6 +81,8 @@ export function dailyRecap({ sales = [], linesBySale = new Map(), ledger = [] } 
     .filter((e) => e.type === 'bayar')
     .reduce((sum, e) => sum + e.amount, 0);
 
+  const pengeluaran = expenseTotal(expenses);
+
   return {
     transaksi: done.length,
     batal: sales.length - done.length,
@@ -75,6 +92,11 @@ export function dailyRecap({ sales = [], linesBySale = new Map(), ledger = [] } 
     utangBaru,
     pembayaranUtang,
     laba: labaKnown ? laba : null,
+    pengeluaran,
+    // What is actually left. Null whenever the margin is unknown, because
+    // "penjualan minus pengeluaran" is not profit and showing it as one would
+    // flatter the shop by exactly the cost of its goods.
+    sisa: labaKnown ? laba - pengeluaran : null,
   };
 }
 
@@ -100,19 +122,23 @@ export function bestSellers(lines = [], limit = 5) {
  *
  * Utang repayments are counted separately from sales but sit in the same
  * drawer, so leaving them out would report a surplus every time a customer
- * settled a tab.
+ * settled a tab. Money taken out of that same drawer to buy something is
+ * subtracted for the mirror-image reason: without it every shopping run
+ * reports a shortfall and the selisih stops meaning anything.
  */
 export function shiftSummary({
   kasAwal = 0,
   tunai = 0,
   pembayaranUtang = 0,
+  pengeluaran = 0,
   kasAkhir = null,
 } = {}) {
-  const seharusnya = kasAwal + tunai + pembayaranUtang;
+  const seharusnya = kasAwal + tunai + pembayaranUtang - pengeluaran;
   return {
     kasAwal,
     tunai,
     pembayaranUtang,
+    pengeluaran,
     seharusnya,
     kasAkhir,
     selisih: kasAkhir == null ? null : kasAkhir - seharusnya,

@@ -58,6 +58,15 @@ export default function Kas() {
                 <span className="stat__value">{rupiah(totals?.pembayaranUtang ?? 0)}</span>
               </div>
             )}
+            {/* Only once some has gone out. It is subtracted from what the
+                drawer should hold, so leaving it unnamed would make the
+                expected figure look wrong to whoever is counting. */}
+            {totals?.pengeluaran > 0 && (
+              <div className="stat">
+                <span>{t.kas.keluar}</span>
+                <span className="stat__value">−{rupiah(totals.pengeluaran)}</span>
+              </div>
+            )}
             <div className="stat stat--total">
               <span>{t.kas.seharusnya}</span>
               <span className="big">{rupiah(totals?.seharusnya ?? shift.kasAwal)}</span>

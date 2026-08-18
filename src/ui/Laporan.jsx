@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../data/db.js';
 import { linesForSales, salesOn, voidSale } from '../data/sales.js';
+import { expensesOn } from '../data/expenses.js';
 import { bestSellers, dailyRecap, dayBounds } from '../domain/report.js';
 import { rupiah } from '../domain/money.js';
 import { t, jam } from '../strings/id.js';
 import { useSettings } from './settings-context.jsx';
 import Kas from './Kas.jsx';
+import Pengeluaran from './Pengeluaran.jsx';
 import Struk from './Struk.jsx';
 
 export default function Laporan() {
@@ -22,13 +24,14 @@ export default function Laporan() {
       .where('createdAt')
       .between(start, end, true, false)
       .toArray();
-    return { sales, linesBySale, ledger };
+    const expenses = await expensesOn();
+    return { sales, linesBySale, ledger, expenses };
   }, [], null);
 
   if (!data) return null;
 
-  const { sales, linesBySale, ledger } = data;
-  const recap = dailyRecap({ sales, linesBySale, ledger });
+  const { sales, linesBySale, ledger, expenses } = data;
+  const recap = dailyRecap({ sales, linesBySale, ledger, expenses });
   const done = sales.filter((s) => s.status === 'selesai');
   const soldLines = done.flatMap((s) => linesBySale.get(s.id) ?? []);
   const top = bestSellers(soldLines);
@@ -54,6 +57,7 @@ export default function Laporan() {
           <div className="empty">
             <p>{t.laporan.kosong}</p>
           </div>
+          <Pengeluaran />
         </div>
       ) : (
         <div className="body">
@@ -99,6 +103,21 @@ export default function Laporan() {
               </div>
             )}
 
+            {/* Both absent until there is something to say, so a shop that
+                never records an expense keeps the short recap it had. */}
+            {recap.pengeluaran > 0 && (
+              <div className="stat">
+                <span>{t.laporan.pengeluaran}</span>
+                <span className="stat__value">−{rupiah(recap.pengeluaran)}</span>
+              </div>
+            )}
+            {features.modal && recap.sisa != null && recap.pengeluaran > 0 && (
+              <div className="stat">
+                <span className="strong">{t.laporan.sisa}</span>
+                <span className="stat__value">{rupiah(recap.sisa)}</span>
+              </div>
+            )}
+
             {features.utang && (
               <>
                 <div className="stat">
@@ -112,6 +131,8 @@ export default function Laporan() {
               </>
             )}
           </div>
+
+          <Pengeluaran />
 
           {top.length > 0 && (
             <div className="card">

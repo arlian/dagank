@@ -9,7 +9,7 @@
 // with the wrong number in it.
 
 import { db, newId, stamps, touch } from './db.js';
-import { cashTaken } from '../domain/report.js';
+import { cashTaken, expenseFromDrawer } from '../domain/report.js';
 
 /**
  * The shift still open, if any. There is at most one: the screen never offers
@@ -62,29 +62,36 @@ export async function closeShift(id, kasAkhir) {
  * past midnight, which a warung malam does every night.
  */
 export async function shiftTotals(shift, kasAkhir = null) {
-  const until = shift.closedAt ?? Date.now();
+  // An open shift is queried open-ended rather than up to Date.now(). Under a
+  // live query the upper bound is also the edge of what gets watched, so a
+  // range that stops at "now" stops seeing every sale and every expense
+  // recorded after it, and the drawer figure on screen quietly stops moving.
+  const sinceOpened = (table) =>
+    shift.closedAt
+      ? db
+          .table(table)
+          .where('createdAt')
+          .between(shift.openedAt, shift.closedAt, true, true)
+          .toArray()
+      : db.table(table).where('createdAt').aboveOrEqual(shift.openedAt).toArray();
 
-  const sales = await db.sales
-    .where('createdAt')
-    .between(shift.openedAt, until, true, true)
-    .toArray();
-
-  const ledger = await db.ledger
-    .where('createdAt')
-    .between(shift.openedAt, until, true, true)
-    .toArray();
+  const sales = await sinceOpened('sales');
+  const ledger = await sinceOpened('ledger');
+  const expenses = await sinceOpened('expenses');
 
   const selesai = sales.filter((s) => s.status === 'selesai');
   const tunai = cashTaken(selesai);
   const pembayaranUtang = ledger
     .filter((e) => e.type === 'bayar')
     .reduce((sum, e) => sum + e.amount, 0);
+  const pengeluaran = expenseFromDrawer(expenses);
 
-  const seharusnya = shift.kasAwal + tunai + pembayaranUtang;
+  const seharusnya = shift.kasAwal + tunai + pembayaranUtang - pengeluaran;
 
   return {
     tunai,
     pembayaranUtang,
+    pengeluaran,
     transaksi: selesai.length,
     seharusnya,
     selisih: kasAkhir == null ? null : kasAkhir - seharusnya,
