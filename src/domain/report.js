@@ -15,6 +15,18 @@ export function dayBounds(date = new Date()) {
   return { start: start.getTime(), end: end.getTime() };
 }
 
+/**
+ * The last `days` days, today included, as one range. The recap is the same
+ * arithmetic over a wider window: nothing below cares how many days it was
+ * handed, which is why a week and a month need no second implementation.
+ */
+export function rangeBounds(days = 1, date = new Date()) {
+  const { end } = dayBounds(date);
+  const from = new Date(date);
+  from.setDate(from.getDate() - (days - 1));
+  return { start: dayBounds(from).start, end };
+}
+
 export const isSameDay = (timestamp, date = new Date()) => {
   const { start, end } = dayBounds(date);
   return timestamp >= start && timestamp < end;
@@ -98,6 +110,24 @@ export function dailyRecap({
     // flatter the shop by exactly the cost of its goods.
     sisa: labaKnown ? laba - pengeluaran : null,
   };
+}
+
+/**
+ * One row per day that had a sale, newest first. Over a week or a month this
+ * is the shape of the question an owner is really asking -- which days were
+ * good -- and a single total cannot answer it.
+ */
+export function byDay(sales = []) {
+  const map = new Map();
+  for (const sale of sales) {
+    if (sale.status !== 'selesai') continue;
+    const key = dayBounds(new Date(sale.createdAt)).start;
+    const entry = map.get(key) ?? { day: key, penjualan: 0, transaksi: 0 };
+    entry.penjualan += sale.total;
+    entry.transaksi += 1;
+    map.set(key, entry);
+  }
+  return [...map.values()].sort((a, b) => b.day - a.day);
 }
 
 /** Best sellers, by quantity sold, already sorted. */

@@ -142,8 +142,11 @@ export async function voidSale(saleId, reason = null) {
 
 export const salesOn = (date = new Date()) => {
   const { start, end } = dayBounds(date);
-  return db.sales.where('createdAt').between(start, end, true, false).toArray();
+  return salesBetween(start, end);
 };
+
+export const salesBetween = (start, end) =>
+  db.sales.where('createdAt').between(start, end, true, false).toArray();
 
 export const linesForSales = async (saleIds) => {
   const ids = new Set(saleIds);

@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
   bestSellers,
+  byDay,
   cashTaken,
   dailyRecap,
   dayBounds,
   expenseFromDrawer,
   expenseTotal,
   isSameDay,
+  rangeBounds,
   shiftSummary,
 } from './report.js';
 
@@ -188,5 +190,55 @@ describe('expenses', () => {
     expect(recap.laba).toBeNull();
     expect(recap.sisa).toBeNull();
     expect(recap.pengeluaran).toBe(5000);
+  });
+});
+
+describe('rangeBounds', () => {
+  const siang = new Date('2026-08-18T13:00:00');
+
+  it('gives back the single day when asked for one', () => {
+    expect(rangeBounds(1, siang)).toEqual(dayBounds(siang));
+  });
+
+  // Seven days means today and the six before it, not today plus seven.
+  it('counts today as the first of the days, not an extra one', () => {
+    const { start, end } = rangeBounds(7, siang);
+    expect(new Date(start).getDate()).toBe(12);
+    expect(end).toBe(dayBounds(siang).end);
+    expect(Math.round((end - start) / 86400000)).toBe(7);
+  });
+
+  it('crosses a month boundary without arithmetic of its own', () => {
+    const { start } = rangeBounds(7, new Date('2026-09-02T10:00:00'));
+    expect(new Date(start).getMonth()).toBe(7);
+    expect(new Date(start).getDate()).toBe(27);
+  });
+});
+
+describe('byDay', () => {
+  const at = (iso, over = {}) => sale({ createdAt: new Date(iso).getTime(), ...over });
+
+  it('groups by day, newest first, and counts the transactions', () => {
+    const rows = byDay([
+      at('2026-08-17T09:00:00'),
+      at('2026-08-18T10:00:00'),
+      at('2026-08-18T19:00:00'),
+    ]);
+    expect(rows).toHaveLength(2);
+    expect(rows[0].transaksi).toBe(2);
+    expect(rows[0].penjualan).toBe(52000);
+    expect(rows[1].transaksi).toBe(1);
+  });
+
+  // An 8pm sale belongs to the day the shop was open, not to the next one in
+  // UTC, which is where a naive boundary would file it.
+  it('puts a late-evening sale on the day it was made', () => {
+    const rows = byDay([at('2026-08-18T23:30:00')]);
+    expect(new Date(rows[0].day).getDate()).toBe(18);
+  });
+
+  it('leaves cancelled sales out of the takings', () => {
+    const rows = byDay([at('2026-08-18T10:00:00', { status: 'batal' })]);
+    expect(rows).toHaveLength(0);
   });
 });

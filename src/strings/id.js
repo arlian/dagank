@@ -218,6 +218,12 @@ export const t = {
   laporan: {
     judul: 'Laporan',
     hariIni: 'Hari ini',
+    tujuhHari: '7 hari',
+    tigaPuluhHari: '30 hari',
+    perHari: 'Per hari',
+    rataRata: 'Rata-rata sehari',
+    kosongRentang: 'Belum ada transaksi di rentang ini.',
+    terbaru: (n) => `${n} transaksi terakhir`,
     transaksi: 'Transaksi',
     penjualan: 'Penjualan',
     tunai: 'Tunai',

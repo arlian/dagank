@@ -190,6 +190,12 @@ select {
   font-size: 0.92rem;
 }
 
+/* A muted note sitting between full-bleed blocks, which need the body's own
+   side padding put back on. */
+.muted--sisip {
+  padding: 0 16px;
+}
+
 .strong {
   font-weight: 700;
 }
