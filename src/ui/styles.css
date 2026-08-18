@@ -777,6 +777,62 @@ select {
   gap: 8px;
 }
 
+/* Payment methods. Two per row rather than four across, so every one of them
+   keeps a full-width thumb target on a 320px phone. */
+.metode {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+/* ---------- QRIS shown to the customer ----------
+   The phone is turned around and held out, so this covers everything, sits on
+   white for the camera's sake, and carries the amount underneath: the customer
+   checks the number in their banking app against the number on the screen. */
+
+.qris {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap);
+  padding: 16px calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom));
+}
+
+.qris__judul {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.qris__gambar {
+  width: 100%;
+  max-width: 380px;
+  max-height: 62dvh;
+  object-fit: contain;
+  /* No rounding and no shadow: anything drawn over the quiet zone of a QR
+     code is one more reason for a scanner to miss it. */
+  background: #fff;
+}
+
+.qris__contoh {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  border: 1px solid var(--garis);
+  border-radius: var(--sudut);
+  background: #fff;
+  align-self: center;
+}
+
+.qris__total {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
 /* ---------- sale complete ----------
    The one orchestrated moment. A shop still says "lunas" when a bill is
    settled, so the word stays; the treatment is a friendly confirmation rather

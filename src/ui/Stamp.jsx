@@ -17,6 +17,18 @@ export default function Stamp({ sale, onDone, onStruk }) {
   const kembalian = sale.payment?.change ?? 0;
   const kurang = Math.max(sale.total - (sale.payment?.paid ?? 0), 0);
 
+  // Nothing was tendered on a QRIS or transfer sale, so neither "Kembalian"
+  // nor "Uang pas" is true of it. Both would send the cashier to a drawer
+  // that has no part in this sale.
+  const nonTunai = sale.payment?.method === 'qris' || sale.payment?.method === 'transfer';
+  const catatan = !lunas
+    ? `${t.utang.totalUtang} ${rupiah(kurang)}`
+    : nonTunai
+      ? `${t.bayar[sale.payment.method]} · ${t.bayar.sudahDibayar}`
+      : kembalian > 0
+        ? `${t.bayar.kembalian} ${rupiah(kembalian)}`
+        : t.bayar.uangPas;
+
   useEffect(() => {
     const timer = setTimeout(onDone, 1400);
     return () => clearTimeout(timer);
@@ -29,13 +41,7 @@ export default function Stamp({ sale, onDone, onStruk }) {
         {lunas && <IconCek />}
         {lunas ? 'Lunas' : 'Utang'}
       </div>
-      <div className="stamp__note">
-        {lunas
-          ? kembalian > 0
-            ? `${t.bayar.kembalian} ${rupiah(kembalian)}`
-            : t.bayar.uangPas
-          : `${t.utang.totalUtang} ${rupiah(kurang)}`}
-      </div>
+      <div className="stamp__note">{catatan}</div>
 
       {/* Offered, never imposed: most sales here want no paper, so the sale
           flow gains no tap. Taking it up cancels the dismissal, because the

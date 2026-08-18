@@ -28,7 +28,7 @@ export const lineFromItem = (item, { unit = null, modifiers = [], qty = 1 } = {}
 };
 
 /**
- * @param payment {{ method: 'tunai'|'nonTunai'|'utang', paid: number }}
+ * @param payment {{ method: 'tunai'|'qris'|'transfer'|'utang', paid: number }}
  */
 export async function recordSale({
   lines,

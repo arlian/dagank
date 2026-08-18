@@ -73,6 +73,17 @@ export default function Laporan() {
               <span className="stat__value">{rupiah(recap.tunai)}</span>
             </div>
 
+            {/* Only once there is some. A cash-only shop should not have to
+                read past a row saying nol every single day -- but the day a
+                QRIS sale happens, the gap between Penjualan and Tunai needs
+                explaining, and this is the row that explains it. */}
+            {recap.nonTunai > 0 && (
+              <div className="stat">
+                <span>{t.laporan.nonTunai}</span>
+                <span className="stat__value">{rupiah(recap.nonTunai)}</span>
+              </div>
+            )}
+
             {/* Absent, not shown as an empty row, when the shop does not
                 track cost. */}
             {features.modal && (

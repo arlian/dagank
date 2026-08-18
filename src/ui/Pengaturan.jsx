@@ -11,6 +11,7 @@ import { removeSampleItems } from '../data/items.js';
 import { PRESETS } from '../profiles/index.js';
 import { t, tanggal } from '../strings/id.js';
 import { useSettings } from './settings-context.jsx';
+import { shrinkToDataUrl } from './image.js';
 import { PrinterPengaturan } from './Struk.jsx';
 
 const FLAGS = ['stok', 'barcode', 'satuan', 'modifier', 'utang', 'modal', 'shift'];
@@ -23,7 +24,9 @@ export default function Pengaturan() {
   const [lastExport, setLastExport] = useState(undefined);
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
+  const [qrisError, setQrisError] = useState(null);
   const fileRef = useRef(null);
+  const qrisRef = useRef(null);
 
   useEffect(() => {
     lastExportAt().then(setLastExport);
@@ -31,6 +34,27 @@ export default function Pengaturan() {
 
   const toggle = async (flag, value) => {
     await setFeature(flag, value);
+    await refresh();
+  };
+
+  const onQris = async (event) => {
+    const file = event.target.files?.[0];
+    // Cleared straight away, so picking the same photo again still fires a
+    // change event after a failed first attempt.
+    event.target.value = '';
+    if (!file) return;
+    try {
+      await saveSettings({ qris: await shrinkToDataUrl(file) });
+      await refresh();
+      setQrisError(null);
+    } catch (err) {
+      setQrisError(t.error[err.message] ?? t.error.gambarGagal);
+    }
+  };
+
+  const hapusQris = async () => {
+    if (!window.confirm(`${t.pengaturan.qrisHapus}?`)) return;
+    await saveSettings({ qris: null });
     await refresh();
   };
 
@@ -111,6 +135,33 @@ export default function Pengaturan() {
             <span>{t.pengaturan.jenisUsaha}</span>
             <span className="muted">{PRESETS[settings.profile]?.label ?? '—'}</span>
           </div>
+        </div>
+
+        {/* Uploaded once and shown from the payment sheet afterwards. Stored
+            as an image because a static QRIS is a printed sticker on the wall:
+            there is no code to type and no account to connect. */}
+        <div className="card stack">
+          <h2>{t.pengaturan.pembayaran}</h2>
+          <p className="muted">{t.pengaturan.qrisPetunjuk}</p>
+          {settings.qris && (
+            <img className="qris__contoh" src={settings.qris} alt={t.pengaturan.qris} />
+          )}
+          <button className="btn btn--block" onClick={() => qrisRef.current?.click()}>
+            {settings.qris ? t.pengaturan.qrisGanti : t.pengaturan.qrisUnggah}
+          </button>
+          {settings.qris && (
+            <button className="btn btn--danger btn--block" onClick={hapusQris}>
+              {t.pengaturan.qrisHapus}
+            </button>
+          )}
+          <input
+            ref={qrisRef}
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={onQris}
+          />
+          {qrisError && <span className="error">{qrisError}</span>}
         </div>
 
         {/* Pairing belongs here, once per session, not at the till with a

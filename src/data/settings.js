@@ -14,6 +14,10 @@ export const DEFAULT_SETTINGS = {
   profile: null,
   features: normaliseFeatures(),
   rounding: 'none',
+  // A data URL of the shop's static QRIS, shown full screen at payment. Kept
+  // in settings rather than a table because there is exactly one, and keeping
+  // it a string means it survives a backup export unchanged.
+  qris: null,
   // Off by default: sending the kick to a printer with no drawer wired to it
   // is harmless but pointless.
   laciUang: false,
