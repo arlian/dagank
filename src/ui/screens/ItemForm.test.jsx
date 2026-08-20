@@ -1,10 +1,10 @@
 import 'fake-indexeddb/auto';
 import { describe, expect, it } from 'vitest';
 import { renderToString } from 'react-dom/server';
-import { SettingsProvider } from './settings-context.jsx';
-import { featuresFor } from '../profiles/index.js';
-import ItemForm from './screens/ItemForm.jsx';
-import { emptyItem } from '../data/items.js';
+import { SettingsProvider } from '../settings-context.jsx';
+import { featuresFor } from '../../profiles/index.js';
+import ItemForm from './ItemForm.jsx';
+import { emptyItem } from '../../data/items.js';
 
 // The item form is where the generalisation succeeds or fails, so these
 // assert the rule directly: when a flag is off, the field is ABSENT.
