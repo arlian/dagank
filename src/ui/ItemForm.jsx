@@ -5,7 +5,7 @@ import { findByBarcode } from '../data/items.js';
 import { useSettings } from './settings-context.jsx';
 import MoneyInput from './MoneyInput.jsx';
 import ScanBarcode from './ScanBarcode.jsx';
-import { IconScan } from './icons.jsx';
+import { IconScan } from './components/icons.jsx';
 
 /**
  * The item form is where the generalisation succeeds or fails. It is built

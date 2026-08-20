@@ -9,7 +9,7 @@ import { t, noun } from '../strings/id.js';
 import { useSettings } from './settings-context.jsx';
 import Bayar from './Bayar.jsx';
 import Stamp from './Stamp.jsx';
-import { IconScan } from './icons.jsx';
+import { IconScan } from './components/icons.jsx';
 import ScanBarcode from './ScanBarcode.jsx';
 import Struk from './Struk.jsx';
 

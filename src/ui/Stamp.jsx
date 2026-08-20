@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { rupiah } from '../domain/money.js';
 import { t } from '../strings/id.js';
-import { IconCek } from './icons.jsx';
+import { IconCek } from './components/icons.jsx';
 
 /**
  * How a sale ends. A shop still says "lunas" when a bill is settled, so the
