@@ -10,7 +10,7 @@ import {
 } from '../data/items.js';
 import { stockList } from '../domain/stock.js';
 import { t, tanggal } from '../strings/id.js';
-import QtyInput from './QtyInput.jsx';
+import QtyInput from './components/QtyInput.jsx';
 
 /**
  * Stock only ever moved on the way out before this screen existed: sales

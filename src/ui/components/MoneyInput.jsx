@@ -1,4 +1,4 @@
-import { angka, parseRupiah } from '../domain/money.js';
+import { angka, parseRupiah } from '../../domain/money.js';
 
 /**
  * Formats with thousand separators as the user types while keeping the stored

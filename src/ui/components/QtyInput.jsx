@@ -1,4 +1,4 @@
-import { t } from '../strings/id.js';
+import { t } from '../../strings/id.js';
 
 /**
  * Counts, not money, so deliberately not the money Keypad: that one carries a

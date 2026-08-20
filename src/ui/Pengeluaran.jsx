@@ -10,7 +10,7 @@ import { expenseTotal } from '../domain/report.js';
 import { rupiah } from '../domain/money.js';
 import { t, jam } from '../strings/id.js';
 import { useSettings } from './settings-context.jsx';
-import Keypad from './Keypad.jsx';
+import Keypad from './components/Keypad.jsx';
 
 /**
  * What went out of the shop today. Lives on Laporan next to Kas, for the same

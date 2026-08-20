@@ -3,7 +3,7 @@ import { t, noun } from '../strings/id.js';
 import { MODIFIER_SUGGESTIONS } from '../profiles/index.js';
 import { findByBarcode } from '../data/items.js';
 import { useSettings } from './settings-context.jsx';
-import MoneyInput from './MoneyInput.jsx';
+import MoneyInput from './components/MoneyInput.jsx';
 import ScanBarcode from './ScanBarcode.jsx';
 import { IconScan } from './components/icons.jsx';
 

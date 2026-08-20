@@ -1,4 +1,4 @@
-import { t } from '../strings/id.js';
+import { t } from '../../strings/id.js';
 
 // A custom keypad rather than the system keyboard: large keys, no autocorrect,
 // no accidental letters, and a "000" key, which matters enormously with rupiah.

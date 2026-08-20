@@ -10,7 +10,7 @@ import {
 import { rupiah } from '../domain/money.js';
 import { t, jam, tanggal } from '../strings/id.js';
 import { useSettings } from './settings-context.jsx';
-import Keypad from './Keypad.jsx';
+import Keypad from './components/Keypad.jsx';
 
 /**
  * Kas awal at open, kas akhir counted at close, and the selisih between what

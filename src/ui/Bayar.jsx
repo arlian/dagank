@@ -6,7 +6,7 @@ import { recordSale } from '../data/sales.js';
 import { listCustomers, createCustomer } from '../data/customers.js';
 import { t } from '../strings/id.js';
 import { useSettings } from './settings-context.jsx';
-import Keypad from './Keypad.jsx';
+import Keypad from './components/Keypad.jsx';
 
 // Quick amounts remove most of the typing from the payment step. The set is
 // tuned to the profile's typical transaction value.

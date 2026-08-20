@@ -9,7 +9,7 @@ import {
 import { balance } from '../domain/ledger.js';
 import { rupiah } from '../domain/money.js';
 import { t, tanggal } from '../strings/id.js';
-import Keypad from './Keypad.jsx';
+import Keypad from './components/Keypad.jsx';
 
 export default function Utang() {
   const [open, setOpen] = useState(null);
