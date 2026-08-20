@@ -1,7 +1,7 @@
-import { t, noun } from '../strings/id.js';
-import { navigate } from './useHashRoute.js';
-import { useSettings } from './settings-context.jsx';
-import { ICONS } from './components/icons.jsx';
+import { t, noun } from '../../strings/id.js';
+import { navigate } from '../useHashRoute.js';
+import { useSettings } from '../settings-context.jsx';
+import { ICONS } from './icons.jsx';
 
 // Icons always carry a text label. An icon-only button is guesswork for
 // someone who has never used software of this kind.

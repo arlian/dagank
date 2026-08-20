@@ -1,5 +1,5 @@
 import { useRegisterSW } from 'virtual:pwa-register/react';
-import { t } from '../strings/id.js';
+import { t } from '../../strings/id.js';
 
 /**
  * `registerType: 'prompt'`, so a new build never swaps itself in underneath a
