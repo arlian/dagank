@@ -4,7 +4,7 @@ import { applyPreset } from '../../data/settings.js';
 import { createItem, emptyItem } from '../../data/items.js';
 import { t } from '../../strings/id.js';
 import { SettingsProvider } from '../settings-context.jsx';
-import ItemForm, { validateItem } from '../ItemForm.jsx';
+import ItemForm, { validateItem } from './ItemForm.jsx';
 
 /**
  * Three screens. No printer setup, no tax, no cash float, no logo: each of

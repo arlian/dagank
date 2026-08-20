@@ -7,9 +7,9 @@ import { bestSellers, byDay, dailyRecap, rangeBounds } from '../../domain/report
 import { rupiah } from '../../domain/money.js';
 import { t, jam, tanggal } from '../../strings/id.js';
 import { useSettings } from '../settings-context.jsx';
-import Kas from '../Kas.jsx';
-import Pengeluaran from '../Pengeluaran.jsx';
-import Struk from '../Struk.jsx';
+import Kas from './Kas.jsx';
+import Pengeluaran from './Pengeluaran.jsx';
+import Struk from './Struk.jsx';
 
 // Three windows, not a date picker. Picking an arbitrary day is a rare need
 // and a slow control; "how did the week go" is the question that actually gets

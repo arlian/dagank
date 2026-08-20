@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { t, noun } from '../strings/id.js';
-import { MODIFIER_SUGGESTIONS } from '../profiles/index.js';
-import { findByBarcode } from '../data/items.js';
-import { useSettings } from './settings-context.jsx';
-import MoneyInput from './components/MoneyInput.jsx';
+import { t, noun } from '../../strings/id.js';
+import { MODIFIER_SUGGESTIONS } from '../../profiles/index.js';
+import { findByBarcode } from '../../data/items.js';
+import { useSettings } from '../settings-context.jsx';
+import MoneyInput from '../components/MoneyInput.jsx';
 import ScanBarcode from './ScanBarcode.jsx';
-import { IconScan } from './components/icons.jsx';
+import { IconScan } from '../components/icons.jsx';
 
 /**
  * The item form is where the generalisation succeeds or fails. It is built

@@ -12,7 +12,7 @@ import { PRESETS } from '../../profiles/index.js';
 import { t, tanggal } from '../../strings/id.js';
 import { useSettings } from '../settings-context.jsx';
 import { shrinkToDataUrl } from '../image.js';
-import { PrinterPengaturan } from '../Struk.jsx';
+import { PrinterPengaturan } from './Struk.jsx';
 
 const FLAGS = ['stok', 'barcode', 'satuan', 'modifier', 'utang', 'modal', 'shift'];
 

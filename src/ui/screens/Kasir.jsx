@@ -7,11 +7,11 @@ import { stockAfterCart, stockWarning } from '../../domain/stock.js';
 import { rupiah } from '../../domain/money.js';
 import { t, noun } from '../../strings/id.js';
 import { useSettings } from '../settings-context.jsx';
-import Bayar from '../Bayar.jsx';
+import Bayar from './Bayar.jsx';
 import Stamp from '../components/Stamp.jsx';
 import { IconScan } from '../components/icons.jsx';
-import ScanBarcode from '../ScanBarcode.jsx';
-import Struk from '../Struk.jsx';
+import ScanBarcode from './ScanBarcode.jsx';
+import Struk from './Struk.jsx';
 
 export default function Kasir() {
   const { settings } = useSettings();

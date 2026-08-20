@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { linesForSale } from '../data/sales.js';
-import { getCustomer } from '../data/customers.js';
-import { buildReceipt } from '../printer/receipt.js';
+import { linesForSale } from '../../data/sales.js';
+import { getCustomer } from '../../data/customers.js';
+import { buildReceipt } from '../../printer/receipt.js';
 import {
   canPrintBluetooth,
   connectPrinter,
   onPrinterChange,
   printerState,
   printLines,
-} from '../printer/bluetooth.js';
-import { printViaBrowser, shareReceipt } from '../printer/share.js';
-import { t } from '../strings/id.js';
-import { useSettings } from './settings-context.jsx';
+} from '../../printer/bluetooth.js';
+import { printViaBrowser, shareReceipt } from '../../printer/share.js';
+import { t } from '../../strings/id.js';
+import { useSettings } from '../settings-context.jsx';
 
 /**
  * The struk, as paper, as a WhatsApp message, or as a browser print. Reached

@@ -7,10 +7,10 @@ import {
   recordOpname,
   recordPurchase,
   recordWaste,
-} from '../data/items.js';
-import { stockList } from '../domain/stock.js';
-import { t, tanggal } from '../strings/id.js';
-import QtyInput from './components/QtyInput.jsx';
+} from '../../data/items.js';
+import { stockList } from '../../domain/stock.js';
+import { t, tanggal } from '../../strings/id.js';
+import QtyInput from '../components/QtyInput.jsx';
 
 /**
  * Stock only ever moved on the way out before this screen existed: sales

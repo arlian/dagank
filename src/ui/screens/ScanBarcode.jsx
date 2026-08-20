@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { t } from '../strings/id.js';
-import { rupiah } from '../domain/money.js';
-import { IconCek } from './components/icons.jsx';
+import { t } from '../../strings/id.js';
+import { rupiah } from '../../domain/money.js';
+import { IconCek } from '../components/icons.jsx';
 
 /**
  * Getting a barcode into the till, by camera where the browser can, by typing
