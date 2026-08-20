@@ -53,7 +53,7 @@ src/
   data/        skema Dexie, migrasi, repositori. Tidak pernah menyentuh jaringan.
   domain/      perhitungan murni: total, margin, pergerakan stok
   profiles/    preset profil usaha dan nilai bawaan tanda fitur
-  printer/     (belum ada) struk ESC/POS lewat Web Bluetooth
+  printer/     struk ESC/POS lewat Web Bluetooth
   ui/          kerangka aplikasi: App.jsx, rute hash, konteks pengaturan, gaya
     screens/     satu berkas per layar, termasuk layar penuh yang dibuka dari layar lain
     components/  komponen yang dipakai ulang lintas layar
