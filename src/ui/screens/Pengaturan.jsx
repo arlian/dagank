@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { saveSettings, setFeature } from '../data/settings.js';
+import { saveSettings, setFeature } from '../../data/settings.js';
 import {
   exportBackup,
   exportItemsCsv,
   exportSalesCsv,
   importBackup,
   lastExportAt,
-} from '../data/backup.js';
-import { removeSampleItems } from '../data/items.js';
-import { PRESETS } from '../profiles/index.js';
-import { t, tanggal } from '../strings/id.js';
-import { useSettings } from './settings-context.jsx';
-import { shrinkToDataUrl } from './image.js';
-import { PrinterPengaturan } from './Struk.jsx';
+} from '../../data/backup.js';
+import { removeSampleItems } from '../../data/items.js';
+import { PRESETS } from '../../profiles/index.js';
+import { t, tanggal } from '../../strings/id.js';
+import { useSettings } from '../settings-context.jsx';
+import { shrinkToDataUrl } from '../image.js';
+import { PrinterPengaturan } from '../Struk.jsx';
 
 const FLAGS = ['stok', 'barcode', 'satuan', 'modifier', 'utang', 'modal', 'shift'];
 

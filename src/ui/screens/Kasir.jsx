@@ -1,17 +1,17 @@
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { listItems, findByBarcode, frequentItems, allStock } from '../data/items.js';
-import { lineFromItem, salesOn } from '../data/sales.js';
-import { addLine, calcSale, setLineQty } from '../domain/sale.js';
-import { stockAfterCart, stockWarning } from '../domain/stock.js';
-import { rupiah } from '../domain/money.js';
-import { t, noun } from '../strings/id.js';
-import { useSettings } from './settings-context.jsx';
-import Bayar from './Bayar.jsx';
-import Stamp from './components/Stamp.jsx';
-import { IconScan } from './components/icons.jsx';
-import ScanBarcode from './ScanBarcode.jsx';
-import Struk from './Struk.jsx';
+import { listItems, findByBarcode, frequentItems, allStock } from '../../data/items.js';
+import { lineFromItem, salesOn } from '../../data/sales.js';
+import { addLine, calcSale, setLineQty } from '../../domain/sale.js';
+import { stockAfterCart, stockWarning } from '../../domain/stock.js';
+import { rupiah } from '../../domain/money.js';
+import { t, noun } from '../../strings/id.js';
+import { useSettings } from '../settings-context.jsx';
+import Bayar from '../Bayar.jsx';
+import Stamp from '../components/Stamp.jsx';
+import { IconScan } from '../components/icons.jsx';
+import ScanBarcode from '../ScanBarcode.jsx';
+import Struk from '../Struk.jsx';
 
 export default function Kasir() {
   const { settings } = useSettings();

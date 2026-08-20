@@ -7,14 +7,14 @@ import {
   emptyItem,
   listItems,
   updateItem,
-} from '../data/items.js';
-import { listCategories } from '../data/settings.js';
-import { stockList, stockWarning } from '../domain/stock.js';
-import { rupiah } from '../domain/money.js';
-import { t, noun } from '../strings/id.js';
-import { useSettings } from './settings-context.jsx';
-import ItemForm, { validateItem } from './ItemForm.jsx';
-import Stok from './Stok.jsx';
+} from '../../data/items.js';
+import { listCategories } from '../../data/settings.js';
+import { stockList, stockWarning } from '../../domain/stock.js';
+import { rupiah } from '../../domain/money.js';
+import { t, noun } from '../../strings/id.js';
+import { useSettings } from '../settings-context.jsx';
+import ItemForm, { validateItem } from '../ItemForm.jsx';
+import Stok from '../Stok.jsx';
 
 export default function Barang() {
   const { settings } = useSettings();

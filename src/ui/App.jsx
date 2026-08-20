@@ -4,13 +4,13 @@ import { requestDurableStorage } from '../data/db.js';
 import { SettingsProvider } from './settings-context.jsx';
 import { useHashRoute } from './useHashRoute.js';
 import UpdatePrompt from './components/UpdatePrompt.jsx';
-import Onboarding from './Onboarding.jsx';
+import Onboarding from './screens/Onboarding.jsx';
 import TabBar from './components/TabBar.jsx';
-import Kasir from './Kasir.jsx';
-import Barang from './Barang.jsx';
-import Utang from './Utang.jsx';
-import Laporan from './Laporan.jsx';
-import Pengaturan from './Pengaturan.jsx';
+import Kasir from './screens/Kasir.jsx';
+import Barang from './screens/Barang.jsx';
+import Utang from './screens/Utang.jsx';
+import Laporan from './screens/Laporan.jsx';
+import Pengaturan from './screens/Pengaturan.jsx';
 
 export default function App() {
   const [settings, setSettings] = useState(null);
