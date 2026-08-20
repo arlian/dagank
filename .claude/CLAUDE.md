@@ -30,7 +30,10 @@ src/
   domain/      pure calculations: totals, margins, stock movements
   profiles/    business profile presets and feature flag defaults
   printer/     receipt builder, ESC/POS encoder, Bluetooth transport
-  ui/          screens and components
+  ui/          app shell: App.jsx, hash routing, settings context, styles
+    screens/     one per screen, including the full-page ones opened from another
+    components/  widgets reused across screens
+    tests/       integration tests that mount <App /> and click through it
   strings/     all Bahasa Indonesia user-facing text
 ```
 
