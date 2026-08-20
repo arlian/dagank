@@ -8,8 +8,8 @@ import 'fake-indexeddb/auto';
 import { expect, test } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import App from './App.jsx';
-import { db } from '../data/db.js';
+import App from '../App.jsx';
+import { db } from '../../data/db.js';
 
 const log = (step) => console.log(`  ${step}`);
 

@@ -8,10 +8,10 @@ import 'fake-indexeddb/auto';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import App from './App.jsx';
-import { db, TABLES } from '../data/db.js';
-import { createItem } from '../data/items.js';
-import { applyPreset, saveSettings } from '../data/settings.js';
+import App from '../App.jsx';
+import { db, TABLES } from '../../data/db.js';
+import { createItem } from '../../data/items.js';
+import { applyPreset, saveSettings } from '../../data/settings.js';
 
 const log = (step) => console.log(`  ${step}`);
 
