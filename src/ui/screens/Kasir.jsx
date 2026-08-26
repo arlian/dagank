@@ -1,6 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { listItems, findByBarcode, frequentItems, allStock } from '../../data/items.js';
+import {
+  allPhotos,
+  allStock,
+  findByBarcode,
+  frequentItems,
+  listItems,
+} from '../../data/items.js';
 import { lineFromItem, salesOn } from '../../data/sales.js';
 import { addLine, calcSale, setLineQty } from '../../domain/sale.js';
 import { stockAfterCart, stockWarning } from '../../domain/stock.js';
@@ -27,6 +33,13 @@ export default function Kasir() {
 
   const items = useLiveQuery(listItems, [], []);
   const stock = useLiveQuery(allStock, [], new Map());
+  // Not read at all when the shop has no photos, so a kelontong with hundreds
+  // of items never pays for a feature it turned off.
+  const photos = useLiveQuery(
+    () => (features.foto ? allPhotos() : new Map()),
+    [features.foto],
+    new Map(),
+  );
   const frequent = useLiveQuery(frequentItems, [], []);
   const todaySales = useLiveQuery(() => salesOn(), [], []);
 
@@ -110,6 +123,7 @@ export default function Kasir() {
           categories={categories}
           category={category}
           setCategory={setCategory}
+          photos={photos}
           onPick={add}
         />
       )}
@@ -203,7 +217,16 @@ function StokBadge({ warn, left }) {
 }
 
 /** Grid: the item board IS the interface. One tap adds, a second tap increments. */
-function GridMode({ items, stock, lines, categories, category, setCategory, onPick }) {
+function GridMode({
+  items,
+  stock,
+  lines,
+  categories,
+  category,
+  setCategory,
+  photos,
+  onPick,
+}) {
   const visible = category ? items.filter((i) => i.category === category) : items;
   const qtyOf = (id) =>
     lines.filter((l) => l.itemId === id).reduce((sum, l) => sum + l.qty, 0);
@@ -238,6 +261,7 @@ function GridMode({ items, stock, lines, categories, category, setCategory, onPi
           const qty = qtyOf(item.id);
           const warn = stockWarning(item, stock.get(item.id) ?? 0);
           const left = stock.get(item.id) ?? 0;
+          const foto = photos.get(item.id);
           return (
             <button
               key={item.id}
@@ -245,6 +269,9 @@ function GridMode({ items, stock, lines, categories, category, setCategory, onPi
               style={item.gridColor ? { background: item.gridColor } : undefined}
               onClick={() => onPick(item)}
             >
+              {/* Decorative on purpose: the name is right underneath, and a
+                  screen reader announcing the item twice helps nobody. */}
+              {foto && <img className="tile__foto" src={foto} alt="" />}
               <span className="tile__name">{item.name}</span>
               <span className="tile__price">{rupiah(item.price)}</span>
               <StokBadge warn={warn} left={left} />

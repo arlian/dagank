@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import {
+  allPhotos,
   allStock,
   createItem,
   deleteItem,
   emptyItem,
   listItems,
+  photoFor,
   updateItem,
 } from '../../data/items.js';
 import { listCategories } from '../../data/settings.js';
@@ -28,6 +30,11 @@ export default function Barang() {
   const items = useLiveQuery(listItems, [], []);
   const stock = useLiveQuery(allStock, [], new Map());
   const categories = useLiveQuery(listCategories, [], []);
+  const photos = useLiveQuery(
+    () => (settings.features.foto ? allPhotos() : new Map()),
+    [settings.features.foto],
+    new Map(),
+  );
 
   // Absent, not disabled, when the shop does not track stock at all or has not
   // switched it on for a single item yet.
@@ -35,9 +42,12 @@ export default function Barang() {
   const habis = tracked.filter((r) => r.warn === 'habis' || r.warn === 'kurang').length;
   const menipis = tracked.filter((r) => r.warn === 'menipis').length;
 
-  const open = (item) => {
+  // The photo lives in its own table, so editing an item has to fetch it
+  // before the sheet opens, or saving would read the absent field as "remove".
+  const open = async (item) => {
+    const foto = item ? await photoFor(item.id) : null;
+    setDraft({ ...(item ?? emptyItem()), foto });
     setEditing(item ?? 'baru');
-    setDraft(item ? { ...item } : emptyItem());
     setErrors({});
   };
 
@@ -111,6 +121,9 @@ export default function Barang() {
               const warn = stockWarning(item, count);
               return (
                 <button key={item.id} className="list__item" onClick={() => open(item)}>
+                  {photos.get(item.id) && (
+                    <img className="list__foto" src={photos.get(item.id)} alt="" />
+                  )}
                   <span className="line__main">
                     <span className="strong">{item.name}</span>
                     {item.sample && <span className="badge"> {t.barang.contoh}</span>}
