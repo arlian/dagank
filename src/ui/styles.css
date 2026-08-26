@@ -411,6 +411,17 @@ select {
   font-weight: 800;
 }
 
+/* Kept deliberately short. A photo makes the tile taller, and a board that
+   needs scrolling costs more taps than the picture saves, so it buys just
+   enough size to be recognised at a glance. */
+.tile__foto {
+  width: 100%;
+  height: 72px;
+  object-fit: cover;
+  border-radius: var(--sudut);
+  background: var(--latar);
+}
+
 .tile__badge {
   position: absolute;
   top: -6px;
@@ -843,6 +854,18 @@ select {
   align-self: center;
 }
 
+/* The photo as it looks while the item is being edited, next to the button
+   that replaces it. */
+.foto__contoh {
+  flex: none;
+  width: 84px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: var(--sudut);
+  border: 1px solid var(--garis);
+  background: var(--latar);
+}
+
 .qris__total {
   font-size: 1.6rem;
   font-weight: 800;
@@ -998,6 +1021,15 @@ select {
 }
 
 .list__item:active {
+  background: var(--latar);
+}
+
+.list__foto {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: var(--sudut);
   background: var(--latar);
 }
 
