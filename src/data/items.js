@@ -46,10 +46,14 @@ export async function searchItems(query) {
 }
 
 export async function createItem(draft, { stokAwal = 0 } = {}) {
-  const item = { ...emptyItem(), ...draft, id: newId(), ...stamps() };
+  // Pulled out before the merge, so the data URL never becomes a column on
+  // the item row it is deliberately kept off.
+  const { foto = null, ...rest } = draft;
+  const item = { ...emptyItem(), ...rest, id: newId(), ...stamps() };
 
-  await db.transaction('rw', db.items, db.movements, async () => {
+  await db.transaction('rw', db.items, db.movements, db.photos, async () => {
     await db.items.add(item);
+    if (foto) await setPhoto(item.id, foto);
     if (item.trackStock && stokAwal) {
       await db.movements.add({
         id: newId(),
@@ -67,10 +71,64 @@ export async function createItem(draft, { stokAwal = 0 } = {}) {
 }
 
 /** Items are mutable; their price history lives in the sale lines. */
-export const updateItem = (id, patch) => db.items.update(id, touch(patch));
+export async function updateItem(id, patch) {
+  const { foto, ...rest } = patch;
+  // Absent means the caller was not editing the photo at all, which is not the
+  // same as null: null is "take it off".
+  if (foto === undefined) return db.items.update(id, touch(rest));
 
-/** Soft delete. A hard delete would make a future merge ambiguous. */
-export const deleteItem = (id) => db.items.update(id, touch({ deletedAt: Date.now() }));
+  return db.transaction('rw', db.items, db.photos, async () => {
+    await setPhoto(id, foto);
+    return db.items.update(id, touch(rest));
+  });
+}
+
+/**
+ * Soft delete. A hard delete would make a future merge ambiguous.
+ *
+ * The photo goes with it, because a removed item is the one case where nobody
+ * will ever want those bytes back, and they would otherwise ride along in
+ * every backup from now on.
+ */
+export const deleteItem = (id) =>
+  db.transaction('rw', db.items, db.photos, async () => {
+    await setPhoto(id, null);
+    return db.items.update(id, touch({ deletedAt: Date.now() }));
+  });
+
+/* ---------- photos ----------
+   A picture beats a name on the board: the seller finds the tile by looking,
+   not by reading, which is faster and works for whoever is minding the cart. */
+
+export const photoFor = async (itemId) => (await db.photos.get(itemId))?.dataUrl ?? null;
+
+/** Every photo at once, keyed by item, so a board of tiles is one read. */
+export async function allPhotos() {
+  const rows = await db.photos.toArray();
+  return new Map(rows.filter((r) => r.dataUrl).map((r) => [r.itemId, r.dataUrl]));
+}
+
+/**
+ * Removing keeps the row as a tombstone with the payload dropped. A later
+ * merge still has to tell "removed here" from "added on the other phone", and
+ * an empty row says that just as well as a dead forty-kilobyte photo would.
+ */
+async function setPhoto(itemId, dataUrl) {
+  const existing = await db.photos.get(itemId);
+
+  if (!dataUrl) {
+    if (!existing || !existing.dataUrl) return;
+    return db.photos.put({ ...existing, dataUrl: null, ...touch({ deletedAt: Date.now() }) });
+  }
+
+  return db.photos.put({
+    itemId,
+    dataUrl,
+    createdAt: existing?.createdAt ?? Date.now(),
+    updatedAt: Date.now(),
+    deletedAt: null,
+  });
+}
 
 export async function removeSampleItems() {
   const samples = await db.items.filter((i) => i.sample && alive(i)).toArray();
