@@ -22,6 +22,7 @@ lewat Pengaturan.
 | Tambahan menu | | ✓ | | |
 | Utang | ✓ | ✓ | | ✓ |
 | Harga modal | ✓ | | ✓ | |
+| Foto barang | | ✓ | ✓ | |
 | Tampilan kasir | cari | papan | papan | papan |
 
 Yang paling terasa bedanya dua: **tampilan kasir** (papan barang untuk menu
