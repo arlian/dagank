@@ -2,15 +2,18 @@ import 'fake-indexeddb/auto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db, TABLES } from './db.js';
 import {
+  allPhotos,
   createItem,
   deleteItem,
   findByBarcode,
+  photoFor,
   movementsFor,
   recordOpname,
   recordPurchase,
   recordWaste,
   searchItems,
   stockFor,
+  updateItem,
 } from './items.js';
 
 beforeEach(async () => {
@@ -134,5 +137,70 @@ describe('stock movements', () => {
     const history = await movementsFor(item.id);
     expect(history.map((m) => m.type)).toEqual(['purchase', 'purchase']);
     expect(history[0].createdAt).toBeGreaterThanOrEqual(history[1].createdAt);
+  });
+});
+
+describe('photos', () => {
+  const FOTO = 'data:image/jpeg;base64,satu';
+  const LAIN = 'data:image/jpeg;base64,dua';
+
+  const gorengan = (foto = FOTO) => createItem({ name: 'Gorengan', price: 1000, foto });
+
+  it('keeps the photo with the item it belongs to', async () => {
+    const item = await gorengan();
+    expect(await photoFor(item.id)).toBe(FOTO);
+  });
+
+  // The whole reason photos live in their own table: every keystroke at the
+  // till reads the item rows, and they must stay small enough to be free.
+  it('never writes the picture onto the item row', async () => {
+    const item = await gorengan();
+    const row = await db.items.get(item.id);
+    expect(row.foto).toBeUndefined();
+    expect(JSON.stringify(row)).not.toContain('base64');
+  });
+
+  it('leaves the photo alone when an edit does not mention it', async () => {
+    const item = await gorengan();
+    await updateItem(item.id, { price: 1500 });
+    expect(await photoFor(item.id)).toBe(FOTO);
+    expect((await db.items.get(item.id)).price).toBe(1500);
+  });
+
+  it('replaces the photo when a new one is picked', async () => {
+    const item = await gorengan();
+    await updateItem(item.id, { foto: LAIN });
+    expect(await photoFor(item.id)).toBe(LAIN);
+    expect(await db.photos.count()).toBe(1);
+  });
+
+  // Null is the explicit "take it off", and it has to survive as a tombstone:
+  // a later merge still needs to tell "removed here" from "added over there".
+  it('drops the bytes but keeps the row when the photo is removed', async () => {
+    const item = await gorengan();
+    await updateItem(item.id, { foto: null });
+
+    expect(await photoFor(item.id)).toBeNull();
+    const row = await db.photos.get(item.id);
+    expect(row.dataUrl).toBeNull();
+    expect(row.deletedAt).not.toBeNull();
+  });
+
+  it('takes the photo down with the item, since nobody wants those bytes back', async () => {
+    const item = await gorengan();
+    await deleteItem(item.id);
+    expect(await photoFor(item.id)).toBeNull();
+  });
+
+  it('leaves a removed photo out of the board', async () => {
+    const punya = await gorengan();
+    const kosong = await createItem({ name: 'Cilok', price: 2000 });
+    const dihapus = await createItem({ name: 'Es teh', price: 3000, foto: LAIN });
+    await updateItem(dihapus.id, { foto: null });
+
+    const board = await allPhotos();
+    expect(board.get(punya.id)).toBe(FOTO);
+    expect(board.has(kosong.id)).toBe(false);
+    expect(board.has(dihapus.id)).toBe(false);
   });
 });
