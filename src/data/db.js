@@ -29,7 +29,16 @@ db.version(2).stores({
   expenses: 'id, createdAt',
 });
 
-export const SCHEMA_VERSION = 2;
+// One photo per item, deliberately NOT a column on `items`. Every keystroke
+// in the till's search reads the whole item table, and a data URL sitting on
+// each row would drag tens of kilobytes through a query that only ever wanted
+// a name. Keyed by itemId, because the only two questions asked of it are
+// "the photo for this item" and "every photo, for the board".
+db.version(3).stores({
+  photos: 'itemId',
+});
+
+export const SCHEMA_VERSION = 3;
 
 /**
  * IDs are generated here, never by a server. ULIDs sort by creation time.
@@ -62,6 +71,7 @@ export const TABLES = [
   'ledger',
   'shifts',
   'expenses',
+  'photos',
 ];
 
 /**
