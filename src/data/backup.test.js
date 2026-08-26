@@ -7,7 +7,7 @@ import 'fake-indexeddb/auto';
 import { beforeEach, expect, test } from 'vitest';
 import { db, SCHEMA_VERSION, TABLES } from './db.js';
 import { buildBackup, importBackup } from './backup.js';
-import { createItem } from './items.js';
+import { createItem, photoFor } from './items.js';
 import { recordExpense } from './expenses.js';
 
 beforeEach(async () => {
@@ -70,4 +70,20 @@ test('expenses ride along in a new backup and come back whole', async () => {
   expect(restored.amount).toBe(5000);
   expect(restored.note).toBe('Bensin');
   expect(restored.dariLaci).toBe(true);
+});
+
+// Photos are the one table whose rows are large, so it is worth proving they
+// actually travel: a restore that quietly dropped them would leave a warung
+// staring at a board of blank tiles with no way to explain it.
+test('item photos ride along in a backup and come back whole', async () => {
+  const foto = 'data:image/jpeg;base64,nasigoreng';
+  const item = await createItem({ name: 'Nasi goreng', price: 15000, foto });
+
+  const backup = await buildBackup();
+  expect(backup.data.photos).toHaveLength(1);
+
+  for (const table of TABLES) await db.table(table).clear();
+  await importBackup(JSON.stringify(backup));
+
+  expect(await photoFor(item.id)).toBe(foto);
 });
