@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { t, noun } from '../../strings/id.js';
 import { MODIFIER_SUGGESTIONS } from '../../profiles/index.js';
 import { findByBarcode } from '../../data/items.js';
 import { useSettings } from '../settings-context.jsx';
+import { FOTO_QUALITY, FOTO_SIDE, shrinkToDataUrl } from '../image.js';
 import MoneyInput from '../components/MoneyInput.jsx';
 import ScanBarcode from './ScanBarcode.jsx';
 import { IconScan } from '../components/icons.jsx';
@@ -19,6 +20,22 @@ export default function ItemForm({ value, onChange, errors = {}, categories = []
   const words = noun(profile);
   const set = (patch) => onChange({ ...value, ...patch });
   const [scanning, setScanning] = useState(false);
+  const [fotoError, setFotoError] = useState(null);
+  const fotoRef = useRef(null);
+
+  const ambilFoto = async (event) => {
+    const file = event.target.files?.[0];
+    // Cleared straight away, so picking the same photo again still fires a
+    // change event after a failed first attempt.
+    event.target.value = '';
+    if (!file) return;
+    try {
+      set({ foto: await shrinkToDataUrl(file, FOTO_SIDE, FOTO_QUALITY) });
+      setFotoError(null);
+    } catch (err) {
+      setFotoError(t.error[err.message] ?? t.error.gambarGagal);
+    }
+  };
 
   /**
    * Refuses a code another item already carries. Two items sharing a barcode
@@ -59,6 +76,42 @@ export default function ItemForm({ value, onChange, errors = {}, categories = []
         <MoneyInput id="harga" value={value.price} onChange={(price) => set({ price })} />
         {errors.price && <span className="error">{errors.price}</span>}
       </div>
+
+      {features.foto && (
+        <div className="field">
+          <span className="field__label">{t.barang.foto}</span>
+          <div className="row">
+            {value.foto && <img className="foto__contoh" src={value.foto} alt="" />}
+            <div className="stack spacer">
+              <button
+                type="button"
+                className="btn btn--block"
+                onClick={() => fotoRef.current?.click()}
+              >
+                {value.foto ? t.barang.fotoGanti : t.barang.fotoAmbil}
+              </button>
+              {value.foto && (
+                <button
+                  type="button"
+                  className="btn btn--danger btn--block"
+                  onClick={() => set({ foto: null })}
+                >
+                  {t.barang.fotoHapus}
+                </button>
+              )}
+            </div>
+          </div>
+          <span className="field__hint">{t.barang.fotoPetunjuk}</span>
+          <input
+            ref={fotoRef}
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={ambilFoto}
+          />
+          {fotoError && <span className="error">{fotoError}</span>}
+        </div>
+      )}
 
       {features.modal && (
         <div className="field">
