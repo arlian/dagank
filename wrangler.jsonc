@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "kasir-umkm",
+  "compatibility_date": "2026-08-31",
+
+  // Static assets only, no Worker script. Nothing in this app runs on a
+  // server, and nothing ever should: `src/data/` may not await the network.
+  "assets": {
+    "directory": "./dist",
+
+    // Hash routing means every real URL is `/`, so anything else is either a
+    // stale bookmark or a typo and index.html is the right answer. This also
+    // matches the service worker's `navigateFallback`, so online and offline
+    // behave the same.
+    "not_found_handling": "single-page-application"
+  }
+}
