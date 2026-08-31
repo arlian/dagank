@@ -42,7 +42,18 @@ npm run preview    # sajikan hasil build; service worker cuma hidup di sini
 npm run test       # unit test
 npm run lint
 npm run icons      # bikin ulang ikon PWA
+
+npm run build:cf   # build produksi untuk Cloudflare (base di root, bukan /dagank/)
+npm run preview:cf # sajikan build itu lewat wrangler
+npm run deploy:cf  # build lalu unggah ke Cloudflare Workers
 ```
+
+Dua tujuan hosting, dua base path. GitHub Pages menyajikan di `/dagank/`;
+Cloudflare di `/`. `KASIR_BASE` yang membedakan, dan `scope` manifest ikut
+berubah otomatis. Sebuah HP yang sudah memasang PWA dari salah satu alamat
+tidak berpindah sendiri — anggap keduanya pemasangan terpisah.
+
+Sebelum `deploy:cf` yang pertama, login sekali: `npx wrangler login`.
 
 Perilaku service worker hanya muncul di `preview` dan produksi, tidak pernah di
 `dev`. Uji perubahan apa pun soal offline atau pembaruan lewat `preview`.
