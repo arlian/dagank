@@ -8,10 +8,10 @@
   "assets": {
     "directory": "./dist",
 
-    // Hash routing means every real URL is `/`, so anything else is either a
-    // stale bookmark or a typo and index.html is the right answer. This also
-    // matches the service worker's `navigateFallback`, so online and offline
-    // behave the same.
-    "not_found_handling": "single-page-application"
+    // Hash routing means every real URL is `/`, so there are no deep paths to
+    // rewrite and a fallback would buy nothing. What it would cost is real: a
+    // missing asset would come back as 200 + index.html, which the browser
+    // reports as a MIME type error naming no file. Let a 404 be a 404.
+    "not_found_handling": "none"
   }
 }

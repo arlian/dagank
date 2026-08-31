@@ -1,0 +1,17 @@
+# Cloudflare Workers static assets reads this file. GitHub Pages ignores it.
+#
+# The service worker is what decides which build a shop is running, so it must
+# never be held in a browser cache. Miss this and a broken release becomes
+# unreachable on the devices that already have it.
+/sw.js
+  Cache-Control: no-cache
+/registerSW.js
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache
+
+# Hashed filenames, so a given URL never changes content.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
