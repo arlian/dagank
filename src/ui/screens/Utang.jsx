@@ -3,18 +3,23 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import {
   createCustomer,
   entriesFor,
+  getCustomer,
   outstandingCustomers,
   recordPayment,
+  updateCustomer,
 } from '../../data/customers.js';
-import { balance } from '../../domain/ledger.js';
+import { balance, oldestDebtAge } from '../../domain/ledger.js';
 import { rupiah } from '../../domain/money.js';
+import { normalisePhone, waLink } from '../../domain/whatsapp.js';
 import { t, tanggal } from '../../strings/id.js';
+import { useSettings } from '../settings-context.jsx';
 import Keypad from '../components/Keypad.jsx';
 
 export default function Utang() {
   const [open, setOpen] = useState(null);
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState(null);
 
   const customers = useLiveQuery(outstandingCustomers, [], []);
@@ -22,8 +27,10 @@ export default function Utang() {
 
   const addCustomer = async () => {
     if (!name.trim()) return setError(t.error.namaPelangganKosong);
-    await createCustomer({ name });
+    if (phone.trim() && !normalisePhone(phone)) return setError(t.utang.nomorWaSalah);
+    await createCustomer({ name, phone: phone.trim() || null });
     setName('');
+    setPhone('');
     setAdding(false);
     setError(null);
   };
@@ -87,6 +94,22 @@ export default function Utang() {
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+            <div className="field">
+              <label className="field__label" htmlFor="nomor-wa-baru">
+                {t.utang.nomorWa}
+              </label>
+              <input
+                id="nomor-wa-baru"
+                className="input"
+                type="tel"
+                inputMode="tel"
+                autoComplete="off"
+                placeholder="0812 3456 7890"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+              <span className="field__hint">{t.utang.nomorWaPetunjuk}</span>
+            </div>
             {error && <span className="error">{error}</span>}
             <button className="btn btn--primary btn--block btn--lg" onClick={addCustomer}>
               {t.aksi.simpan}
@@ -100,10 +123,20 @@ export default function Utang() {
   );
 }
 
-function DetailUtang({ customer, onClose }) {
+function DetailUtang({ customer: awal, onClose }) {
+  const { settings } = useSettings();
   const [amount, setAmount] = useState(0);
-  const entries = useLiveQuery(() => entriesFor(customer.id), [customer.id], []);
+  const entries = useLiveQuery(() => entriesFor(awal.id), [awal.id], []);
+  // Live, so a number typed in below is picked up by the WhatsApp link.
+  const customer = useLiveQuery(() => getCustomer(awal.id), [awal.id], awal);
   const sisa = balance(entries);
+
+  const pesan = t.utang.pesanTagih({
+    nama: customer.name,
+    toko: settings.namaUsaha,
+    sisa: rupiah(sisa),
+    hari: oldestDebtAge(entries),
+  });
 
   const pay = async () => {
     if (!amount) return;
@@ -131,6 +164,17 @@ function DetailUtang({ customer, onClose }) {
           <span className="badge badge--ok">{t.utang.lunas}</span>
         ) : (
           <>
+            {/* A plain link: the owner reads the message in WhatsApp and
+                presses send there, so nothing leaves the phone unseen. */}
+            <a
+              className="btn btn--block"
+              href={waLink(customer.phone, pesan)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t.utang.tagihWa}
+            </a>
+            <NomorWa customer={customer} />
             <div className="stat">
               <span>{t.utang.jumlahBayar}</span>
               <span className="stat__value">{rupiah(amount)}</span>
@@ -167,6 +211,54 @@ function DetailUtang({ customer, onClose }) {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * The number lives on the customer, but this is the moment someone wants it:
+ * right before the first reminder. So it is filled in here, not on a separate
+ * customer screen.
+ */
+function NomorWa({ customer }) {
+  const [value, setValue] = useState(customer.phone ?? '');
+  const [error, setError] = useState(null);
+  const tersimpan = (customer.phone ?? '') === value.trim();
+
+  const save = async () => {
+    const trimmed = value.trim();
+    if (trimmed && !normalisePhone(trimmed)) return setError(t.utang.nomorWaSalah);
+    await updateCustomer(customer.id, { phone: trimmed || null });
+    setError(null);
+  };
+
+  return (
+    <div className="field">
+      <label className="field__label" htmlFor="nomor-wa">
+        {t.utang.nomorWa}
+      </label>
+      <div className="row">
+        <input
+          id="nomor-wa"
+          className="input spacer"
+          type="tel"
+          inputMode="tel"
+          autoComplete="off"
+          placeholder="0812 3456 7890"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+        {!tersimpan && (
+          <button className="btn" onClick={save}>
+            {t.aksi.simpan}
+          </button>
+        )}
+      </div>
+      {error ? (
+        <span className="error">{error}</span>
+      ) : (
+        !customer.phone && <span className="field__hint">{t.utang.nomorWaPetunjuk}</span>
+      )}
     </div>
   );
 }
