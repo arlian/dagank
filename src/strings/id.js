@@ -146,6 +146,19 @@ export const t = {
     tambahPelanggan: 'Tambah pelanggan',
     namaPelanggan: 'Nama pelanggan',
     sejak: (hari) => `Sudah ${hari} hari`,
+    nomorWa: 'Nomor WhatsApp',
+    nomorWaPetunjuk: 'Boleh dikosongkan. Biar bisa ditagih lewat WhatsApp.',
+    nomorWaSalah: 'Nomor ini belum bisa dipakai. Contoh: 0812 3456 7890',
+    tagihWa: 'Tagih lewat WhatsApp',
+    // Polite and short: it lands in the customer's own chat, often a
+    // neighbour's, and reads as a nudge rather than a demand letter.
+    pesanTagih: ({ nama, toko, sisa, hari }) =>
+      [
+        `Halo ${nama},`,
+        `mau mengingatkan, catatan utang di ${toko || 'warung kami'} sekarang ${sisa}` +
+          (hari ? ` (sudah ${hari} hari).` : '.'),
+        'Kalau sudah sempat, ditunggu ya. Terima kasih 🙏',
+      ].join('\n'),
   },
 
   pengeluaran: {
