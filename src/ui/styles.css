@@ -228,6 +228,11 @@ select {
   background: var(--latar);
 }
 
+/* A link dressed as a button, for actions that hand off to another app. */
+a.btn {
+  text-decoration: none;
+}
+
 .btn--primary {
   background: var(--hijau);
   border-color: var(--hijau);
