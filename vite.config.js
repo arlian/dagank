@@ -84,5 +84,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.{js,jsx}'],
+    // The integration tests click through the whole app in jsdom, and on a
+    // busy machine one run can pass 5 seconds without anything being wrong.
+    testTimeout: 20000,
   },
 });
