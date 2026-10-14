@@ -99,6 +99,5 @@ tidak, dan itu penyebab paling sering scan tidak jalan saat pengujian.
 
 ## Yang belum ada
 
-- `src/printer/` — struk ESC/POS 58mm lewat Web Bluetooth
 - Impor CSV untuk pendataan awal ratusan barang
 - Stok opname
