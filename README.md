@@ -40,6 +40,7 @@ npm run dev:https  # sama, tapi https, untuk menguji kamera dari HP
 npm run build      # build produksi ke dist/
 npm run preview    # sajikan hasil build; service worker cuma hidup di sini
 npm run test       # unit test
+npm run test:watch # unit test, jalan ulang tiap berkas berubah
 npm run lint
 npm run icons      # bikin ulang ikon PWA
 
