@@ -8,6 +8,10 @@ describe('formatting', () => {
     expect(rupiah(1000000)).toBe('Rp1.000.000');
   });
 
+  it('puts the minus sign before Rp', () => {
+    expect(rupiah(-12500)).toBe('-Rp12.500');
+  });
+
   it('formats a bare number for fields that already show Rp', () => {
     expect(angka(12500)).toBe('12.500');
   });
