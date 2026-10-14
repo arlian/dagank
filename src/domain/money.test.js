@@ -45,6 +45,12 @@ describe('roundingAdjustment', () => {
     expect(roundingAdjustment(12300, 500)).toBe(200);
   });
 
+  it('ignores a mode that is not a positive step', () => {
+    expect(roundingAdjustment(12345, 0)).toBe(0);
+    expect(roundingAdjustment(12345, -100)).toBe(0);
+    expect(roundingAdjustment(12345, 'abc')).toBe(0);
+  });
+
   it('is zero when the amount already sits on the step', () => {
     expect(roundingAdjustment(12500, 500)).toBe(0);
   });
