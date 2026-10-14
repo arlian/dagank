@@ -12,7 +12,7 @@ describe('normalisePhone', () => {
     expect(normalisePhone(raw)).toBe(expected);
   });
 
-  test.each([null, '', '   ', '021555123', '12345', '0812', '+1 415 555 0100'])(
+  test.each([null, '', '   ', '021555123', '12345', '0812', '+1 415 555 0100', '0812345678901234'])(
     'rejects %s',
     (raw) => {
       expect(normalisePhone(raw)).toBeNull();
