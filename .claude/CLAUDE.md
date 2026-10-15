@@ -17,6 +17,7 @@ npm run dev        # local dev
 npm run build      # production build to dist/
 npm run preview    # serve the build, use this to test the service worker
 npm run test       # unit tests
+npm run test:watch # unit tests, rerun on every change
 npm run lint
 ```
 
