@@ -154,6 +154,11 @@ describe('stockWarning', () => {
     expect(stockWarning({ trackStock: true, minStock: 5 }, 20)).toBeNull();
   });
 
+  it('counts sitting exactly on the minimum as running low', () => {
+    expect(stockWarning({ trackStock: true, minStock: 5 }, 5)).toBe('menipis');
+    expect(stockWarning({ trackStock: true, minStock: 5 }, 6)).toBeNull();
+  });
+
   it('separates "oversold" from "empty", since they need different words', () => {
     expect(stockWarning({ trackStock: true }, -2)).toBe('kurang');
   });
