@@ -62,3 +62,10 @@ describe('oldestDebtAge', () => {
     expect(oldestDebtAge(entries, now)).toBeNull();
   });
 });
+
+describe('entries', () => {
+  it('stores amounts as whole rupiah', () => {
+    expect(debtEntry('c1', 12500.4, 's1').amount).toBe(12500);
+    expect(paymentEntry('c1', 9999.6).amount).toBe(10000);
+  });
+});
