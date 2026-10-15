@@ -39,6 +39,13 @@ describe('movementsForSale', () => {
   });
 });
 
+describe('movementsForSale without lines', () => {
+  it('writes nothing for an empty sale', () => {
+    expect(movementsForSale([], 's1')).toEqual([]);
+    expect(movementsForSale(undefined, 's1')).toEqual([]);
+  });
+});
+
 describe('reversalMovements', () => {
   it('puts the goods back with an opposite record, leaving the original alone', () => {
     const original = movementsForSale([line({ qty: 3 })], 'sale1');
