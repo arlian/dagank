@@ -54,6 +54,10 @@ describe('oldestDebtAge', () => {
     expect(oldestDebtAge(entries, now)).toBe(3);
   });
 
+  it('is null for a customer who never owed anything', () => {
+    expect(oldestDebtAge([], now)).toBeNull();
+  });
+
   it('is null once everything is settled', () => {
     const entries = [
       { ...debtEntry('c1', 10000), createdAt: now - 30 * DAY },
