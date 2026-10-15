@@ -132,6 +132,20 @@ describe('stockList', () => {
     expect(stockList(items, stock).map((r) => r.item.id)).toEqual(['d', 'c', 'a']);
   });
 
+  it('falls back to name order among items with the same warning', () => {
+    const rows = stockList(
+      [
+        { id: 'x', name: 'Teh', trackStock: true },
+        { id: 'y', name: 'Kopi', trackStock: true },
+      ],
+      new Map([
+        ['x', 10],
+        ['y', 10],
+      ]),
+    );
+    expect(rows.map((r) => r.item.name)).toEqual(['Kopi', 'Teh']);
+  });
+
   it('carries the derived count and its warning', () => {
     const [first] = stockList(items, stock);
     expect(first).toMatchObject({ count: 0, warn: 'habis' });
