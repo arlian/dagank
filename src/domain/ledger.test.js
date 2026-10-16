@@ -32,6 +32,10 @@ describe('balanceByCustomer', () => {
     expect(map.get('c1')).toBe(6000);
     expect(map.get('c2')).toBe(5000);
   });
+
+  it('is empty when nobody has a ledger entry', () => {
+    expect(balanceByCustomer([]).size).toBe(0);
+  });
 });
 
 describe('oldestDebtAge', () => {
