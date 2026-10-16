@@ -67,6 +67,10 @@ describe('currentStock', () => {
     expect(currentStock([{ qty: 2 }, { qty: -5 }])).toBe(-3);
   });
 
+  it('skips a movement with no qty instead of turning the sum into NaN', () => {
+    expect(currentStock([{ qty: 5 }, {}, { qty: null }])).toBe(5);
+  });
+
   it('is zero for an item that has never moved', () => {
     expect(currentStock([])).toBe(0);
   });
