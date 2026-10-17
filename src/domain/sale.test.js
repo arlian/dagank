@@ -5,6 +5,7 @@ import {
   changeDue,
   grossProfit,
   lineSubtotal,
+  modifiersTotal,
   outstanding,
   setLineQty,
 } from './sale.js';
@@ -170,5 +171,12 @@ describe('lineSubtotal with gaps', () => {
   it('reads a missing price or quantity as zero', () => {
     expect(lineSubtotal(line({ price: undefined }))).toBe(0);
     expect(lineSubtotal(line({ qty: undefined }))).toBe(0);
+  });
+});
+
+describe('modifiersTotal', () => {
+  it('sums the chosen add-ons and is zero without any', () => {
+    expect(modifiersTotal([{ price: 3000 }, { price: 2000 }])).toBe(5000);
+    expect(modifiersTotal(null)).toBe(0);
   });
 });
