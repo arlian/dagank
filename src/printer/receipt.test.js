@@ -175,3 +175,9 @@ describe('buildReceipt', () => {
     for (const l of lines) expect(l.length).toBeLessThanOrEqual(WIDTH);
   });
 });
+
+describe('center', () => {
+  it('cuts text longer than the paper instead of wrapping it', () => {
+    expect(center('x'.repeat(40))).toBe('x'.repeat(WIDTH));
+  });
+});
