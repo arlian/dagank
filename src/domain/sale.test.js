@@ -158,3 +158,10 @@ describe('setLineQty below zero', () => {
     expect(setLineQty(lines, 1, -1)).toEqual([lines[0]]);
   });
 });
+
+describe('addLine with a quantity', () => {
+  it('adds the quantity typed on the keypad, not just one', () => {
+    const lines = addLine(addLine([], line(), 3), line(), 2);
+    expect(lines[0].qty).toBe(5);
+  });
+});
