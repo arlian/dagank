@@ -257,3 +257,9 @@ describe('bestSellers limit', () => {
     expect(bestSellers(lines, 2)).toHaveLength(2);
   });
 });
+
+describe('byDay without sales', () => {
+  it('is an empty list', () => {
+    expect(byDay([])).toEqual([]);
+  });
+});
