@@ -242,3 +242,11 @@ describe('byDay', () => {
     expect(rows).toHaveLength(0);
   });
 });
+
+describe('isSameDay', () => {
+  it('puts local midnight on the new day', () => {
+    const midnight = new Date(2026, 7, 4, 0, 0).getTime();
+    expect(isSameDay(midnight, new Date(2026, 7, 4, 12, 0))).toBe(true);
+    expect(isSameDay(midnight, new Date(2026, 7, 3, 12, 0))).toBe(false);
+  });
+});
