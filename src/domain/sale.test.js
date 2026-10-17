@@ -4,6 +4,7 @@ import {
   calcSale,
   changeDue,
   grossProfit,
+  lineCost,
   lineSubtotal,
   modifiersTotal,
   outstanding,
@@ -178,5 +179,12 @@ describe('modifiersTotal', () => {
   it('sums the chosen add-ons and is zero without any', () => {
     expect(modifiersTotal([{ price: 3000 }, { price: 2000 }])).toBe(5000);
     expect(modifiersTotal(null)).toBe(0);
+  });
+});
+
+describe('lineCost', () => {
+  it('is null without a cost snapshot, and counts base units with one', () => {
+    expect(lineCost(line({ cost: null }))).toBeNull();
+    expect(lineCost(line({ cost: 500, qty: 2, factor: 24 }))).toBe(24000);
   });
 });
