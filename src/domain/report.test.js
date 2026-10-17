@@ -263,3 +263,10 @@ describe('byDay without sales', () => {
     expect(byDay([])).toEqual([]);
   });
 });
+
+describe('expenses without entries', () => {
+  it('are zero', () => {
+    expect(expenseTotal([])).toBe(0);
+    expect(expenseFromDrawer([])).toBe(0);
+  });
+});
