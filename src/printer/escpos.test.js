@@ -72,3 +72,9 @@ describe('toEscPos', () => {
     expect(toEscPos([]).length).toBeGreaterThan(0);
   });
 });
+
+describe('encodeAscii on non-text', () => {
+  it('prints a number the way it reads', () => {
+    expect(new TextDecoder().decode(encodeAscii(12500))).toBe('12500');
+  });
+});
