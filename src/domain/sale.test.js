@@ -144,3 +144,10 @@ describe('setLineQty', () => {
     expect(lines[0].qty).toBe(1);
   });
 });
+
+describe('payment without an amount', () => {
+  it('treats a missing payment as nothing paid', () => {
+    expect(changeDue(26000, undefined)).toBe(0);
+    expect(outstanding(26000, undefined)).toBe(26000);
+  });
+});
