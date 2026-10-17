@@ -151,3 +151,10 @@ describe('payment without an amount', () => {
     expect(outstanding(26000, undefined)).toBe(26000);
   });
 });
+
+describe('setLineQty below zero', () => {
+  it('removes the line rather than keeping a negative quantity', () => {
+    const lines = [line(), line({ itemId: 'itm2' })];
+    expect(setLineQty(lines, 1, -1)).toEqual([lines[0]]);
+  });
+});
