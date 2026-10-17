@@ -181,3 +181,9 @@ describe('center', () => {
     expect(center('x'.repeat(40))).toBe('x'.repeat(WIDTH));
   });
 });
+
+describe('divider', () => {
+  it('takes another character for a heavier rule', () => {
+    expect(divider('=')).toBe('='.repeat(WIDTH));
+  });
+});
