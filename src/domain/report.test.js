@@ -250,3 +250,10 @@ describe('isSameDay', () => {
     expect(isSameDay(midnight, new Date(2026, 7, 3, 12, 0))).toBe(false);
   });
 });
+
+describe('bestSellers limit', () => {
+  it('returns no more than asked for', () => {
+    const lines = ['a', 'b', 'c'].map((itemId) => line({ itemId }));
+    expect(bestSellers(lines, 2)).toHaveLength(2);
+  });
+});
