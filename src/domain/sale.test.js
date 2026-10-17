@@ -165,3 +165,10 @@ describe('addLine with a quantity', () => {
     expect(lines[0].qty).toBe(5);
   });
 });
+
+describe('lineSubtotal with gaps', () => {
+  it('reads a missing price or quantity as zero', () => {
+    expect(lineSubtotal(line({ price: undefined }))).toBe(0);
+    expect(lineSubtotal(line({ qty: undefined }))).toBe(0);
+  });
+});
