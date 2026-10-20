@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { calcSale, changeDue, outstanding } from '../../domain/sale.js';
 import { rupiah } from '../../domain/money.js';
+import { cashSuggestions } from '../../domain/cash.js';
 import { recordSale } from '../../data/sales.js';
 import { listCustomers, createCustomer } from '../../data/customers.js';
 import { t } from '../../strings/id.js';
@@ -40,7 +41,11 @@ export default function Bayar({ lines, onClose, onDone }) {
   const [lihatQris, setLihatQris] = useState(false);
 
   const customers = useLiveQuery(listCustomers, [], []);
-  const quick = QUICK[settings.profile] ?? QUICK.kelontong;
+  // Rounded up from the total using this profile's usual bills, so a Rp37.500
+  // sale offers 40.000 rather than a fixed 5.000 that cannot cover it.
+  const quick = cashSuggestions(totals.total, {
+    bills: QUICK[settings.profile] ?? QUICK.kelontong,
+  });
   const kurang = outstanding(totals.total, paid);
 
   // QRIS and transfer are settled in full outside the drawer. There is no
@@ -129,7 +134,7 @@ export default function Bayar({ lines, onClose, onDone }) {
                 <span className="stat__value">{rupiah(paid)}</span>
               </div>
 
-              <div className="quick">
+              <div className="quick" aria-label={t.bayar.saranUang}>
                 <button className="btn" onClick={() => setPaid(totals.total)}>
                   {t.bayar.uangPas}
                 </button>
