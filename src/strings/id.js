@@ -50,6 +50,7 @@ export const t = {
     total: 'Total',
     uangDiterima: 'Uang diterima',
     uangPas: 'Uang pas',
+    saranUang: 'Saran uang diterima',
     kembalian: 'Kembalian',
     kurang: 'Kurang',
     tunai: 'Tunai',
