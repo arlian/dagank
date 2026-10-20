@@ -11,3 +11,14 @@ describe('roundUpTo', () => {
     expect(roundUpTo(40000, 10000)).toBe(40000);
   });
 });
+
+describe('cashSuggestions', () => {
+  it('offers distinct amounts above the total, smallest first', () => {
+    expect(cashSuggestions(37500)).toEqual([38000, 40000, 50000, 100000]);
+  });
+
+  it('leaves out the exact total, which Uang pas covers', () => {
+    expect(cashSuggestions(50000)).not.toContain(50000);
+    expect(cashSuggestions(50000)).toEqual([60000, 100000]);
+  });
+});
