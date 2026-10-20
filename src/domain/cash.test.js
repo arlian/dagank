@@ -22,3 +22,20 @@ describe('cashSuggestions', () => {
     expect(cashSuggestions(50000)).toEqual([60000, 100000]);
   });
 });
+
+describe('cashSuggestions edge cases', () => {
+  it('suggests nothing for an empty or negative total', () => {
+    expect(cashSuggestions(0)).toEqual([]);
+    expect(cashSuggestions(-5000)).toEqual([]);
+  });
+
+  it('respects the limit', () => {
+    expect(cashSuggestions(37500, { limit: 2 })).toEqual([38000, 40000]);
+  });
+
+  it('always yields integers', () => {
+    for (const amount of cashSuggestions(12345)) {
+      expect(Number.isInteger(amount)).toBe(true);
+    }
+  });
+});
