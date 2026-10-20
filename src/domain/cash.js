@@ -18,6 +18,7 @@ export function roundUpTo(total, bill) {
  * left out because "Uang pas" already covers it.
  */
 export function cashSuggestions(total, { bills = BILLS, limit = 4 } = {}) {
+  if (!(total > 0)) return [];
   const amounts = new Set();
   for (const bill of bills) {
     const amount = roundUpTo(total, bill);
