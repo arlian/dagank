@@ -37,3 +37,14 @@ test('quick amounts cover the total and picking one shows the change', async () 
   expect(screen.getByText('Kembalian')).toBeTruthy();
   expect(screen.getByText('Rp5.000')).toBeTruthy();
 });
+
+test('the payment sheet says how many kinds of items are being paid for', async () => {
+  const user = userEvent.setup();
+  render(<App />);
+
+  await user.click(await screen.findByRole('button', { name: /Nasi goreng/ }));
+  await user.click(await screen.findByRole('button', { name: /Bayar Rp/ }));
+  await screen.findByText('Pembayaran');
+
+  expect(screen.getByText('(1 jenis barang)')).toBeTruthy();
+});
