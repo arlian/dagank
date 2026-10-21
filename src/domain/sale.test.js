@@ -5,6 +5,7 @@ import {
   changeDue,
   grossProfit,
   lineCost,
+  lineCount,
   lineSubtotal,
   modifiersTotal,
   outstanding,
@@ -186,5 +187,12 @@ describe('lineCost', () => {
   it('is null without a cost snapshot, and counts base units with one', () => {
     expect(lineCost(line({ cost: null }))).toBeNull();
     expect(lineCost(line({ cost: 500, qty: 2, factor: 24 }))).toBe(24000);
+  });
+});
+
+describe('lineCount', () => {
+  it('counts lines with a quantity and ignores empty ones', () => {
+    expect(lineCount([line({ qty: 2 }), line({ qty: 0.5 }), line({ qty: 0 })])).toBe(2);
+    expect(lineCount()).toBe(0);
   });
 });
