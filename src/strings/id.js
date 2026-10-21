@@ -51,6 +51,7 @@ export const t = {
     uangDiterima: 'Uang diterima',
     uangPas: 'Uang pas',
     saranUang: 'Saran uang diterima',
+    jumlahBarang: (n) => `${n} jenis barang`,
     kembalian: 'Kembalian',
     kurang: 'Kurang',
     tunai: 'Tunai',

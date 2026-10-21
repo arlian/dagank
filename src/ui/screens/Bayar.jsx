@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { calcSale, changeDue, outstanding } from '../../domain/sale.js';
+import { calcSale, changeDue, lineCount, outstanding } from '../../domain/sale.js';
 import { rupiah } from '../../domain/money.js';
 import { cashSuggestions } from '../../domain/cash.js';
 import { recordSale } from '../../data/sales.js';
@@ -108,7 +108,9 @@ export default function Bayar({ lines, onClose, onDone }) {
           </div>
 
           <div className="stat stat--total">
-            <span>{t.bayar.total}</span>
+            <span>
+              {t.bayar.total} <span className="muted">({t.bayar.jumlahBarang(lineCount(lines))})</span>
+            </span>
             <span className="big">{rupiah(totals.total)}</span>
           </div>
 
