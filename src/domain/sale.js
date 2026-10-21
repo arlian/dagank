@@ -88,3 +88,6 @@ function lineKey(line) {
     .join('|');
   return `${line.itemId}::${line.unit ?? ''}::${mods}`;
 }
+
+/** How many different lines are in the sale. Weighed goods make a piece count meaningless. */
+export const lineCount = (lines = []) => lines.filter((l) => (l.qty || 0) > 0).length;
